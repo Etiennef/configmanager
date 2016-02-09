@@ -1,0 +1,279 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2016-02-09 22:41+0100\n"
+"PO-Revision-Date: 2016-02-09 22:41+0100\n"
+"Last-Translator: Etienne <etienne-github@outlook.fr>\n"
+"Language-Team: Etiennef <etienne-github@outlook.fr>\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.6\n"
+"X-Poedit-Basepath: ../.\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __:1,2t\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: inc/config.class.php:172
+msgid ""
+"Warning, you defined the inherit option together with other option. Only "
+"inherit will but taken into account"
+msgstr ""
+"Warning, you defined the inherit option together with other option. Only "
+"inherit will but taken into account"
+
+#: inc/config.class.php:345
+msgid "Global configuration for plugin "
+msgstr "Global configuration for plugin "
+
+#: inc/config.class.php:346
+msgid "Entity configuration for plugin "
+msgstr "Entity configuration for plugin "
+
+#: inc/config.class.php:347
+msgid "Profile configuration for plugin "
+msgstr "Profile configuration for plugin "
+
+#: inc/config.class.php:348
+msgid "User preference for plugin "
+msgstr "User preference for plugin "
+
+#: inc/config.class.php:361
+msgid "Inherit from global configuration"
+msgstr "Inherit from global configuration"
+
+#: inc/config.class.php:362
+msgid "Inherit from entity configuration"
+msgstr "Inherit from entity configuration"
+
+#: inc/config.class.php:363
+msgid "Inherit from profile configuration"
+msgstr "Inherit from profile configuration"
+
+#: inc/config.class.php:364
+msgid "Inherit from user preference"
+msgstr "Inherit from user preference"
+
+#: setup.php:24
+msgid "Plugin has been tested only for GLPI 0.84.8"
+msgstr "Plugin has been tested only for GLPI 0.84.8"
+
+#~ msgid "Ticket transfer plugin settings"
+#~ msgstr "Ticket transfer plugin settings"
+
+#~ msgid "Inherit from global config"
+#~ msgstr "Inherit from global config"
+
+#~ msgid "Invalid input : "
+#~ msgstr "Invalid input : "
+
+#~ msgid ""
+#~ "You must change the ticket location to do a transfer (at least one in "
+#~ "entity, type or category)"
+#~ msgstr ""
+#~ "You must change the ticket location to do a transfer (at least one in "
+#~ "entity, type or category)"
+
+#~ msgid "You must chose a new group to do a transfer"
+#~ msgstr "You must chose a new group to do a transfer"
+
+#~ msgid "Transfer explanation / justification"
+#~ msgstr "Transfer explanation / justification"
+
+#~ msgid "You must give a transfer justification"
+#~ msgstr "You must give a transfer justification"
+
+#~ msgid "%s transfers a ticket"
+#~ msgstr "%s transfers a ticket"
+
+#~ msgid "Successful transfer"
+#~ msgstr "Successful transfer"
+
+#~ msgid "Allow requalification"
+#~ msgstr "Allow requalification"
+
+#~ msgid "Allow escalation"
+#~ msgstr "Allow escalation"
+
+#~ msgid "Notification on requalification"
+#~ msgstr "Notification on requalification"
+
+#~ msgid "Always"
+#~ msgstr "Always"
+
+#~ msgid "Only when assign group changes"
+#~ msgstr "Only when assign group changes"
+
+#~ msgid "Never"
+#~ msgstr "Never"
+
+#~ msgid "Only when the user doing the transfer is not in destination group"
+#~ msgstr "Only when the user doing the transfer is not in destination group"
+
+#~ msgid "Allowed entities"
+#~ msgstr "Allowed entities"
+
+#~ msgid "Force transfer justification"
+#~ msgstr "Force transfer justification"
+
+#~ msgid "Keep current status"
+#~ msgstr "Keep current status"
+
+#~ msgid "Yes, but only if I'm not already in an observer group"
+#~ msgstr "Yes, but only if I'm not already in an observer group"
+
+#~ msgid "Keep current group"
+#~ msgstr "Keep current group"
+
+#~ msgid "Automatic transfer"
+#~ msgstr "Automatic transfer"
+
+#~ msgid "Ticket transfer"
+#~ msgstr "Ticket transfer"
+
+#~ msgid "Ticket requalification"
+#~ msgstr "Ticket requalification"
+
+#~ msgid "Ticket escalation"
+#~ msgstr "Ticket escalation"
+
+#~ msgid "Transfer mode"
+#~ msgstr "Transfer mode"
+
+#~ msgid "Keep me observer"
+#~ msgstr "Keep me observer"
+
+#~ msgid "Add me as observer"
+#~ msgstr "Add me as observer"
+
+#~ msgid ""
+#~ "This option only sets if you are personnaly observer, but it will not "
+#~ "change observer groups. This means you will stay observer no matter what"
+#~ msgstr ""
+#~ "This option only sets if you are personnaly observer, but it will not "
+#~ "change observer groups. This means you will stay observer no matter what"
+
+#~ msgid "You are in an observer group"
+#~ msgstr "You are in an observer group"
+
+#~ msgid "Transfer somewhere else"
+#~ msgstr "Transfer somewhere else"
+
+#~ msgid "Transfer to an other group"
+#~ msgstr "Transfer to an other group"
+
+#~ msgid "Keep attribution"
+#~ msgstr "Keep attribution"
+
+#~ msgid "This category does not allow automatic transfer"
+#~ msgstr "This category does not allow automatic transfer"
+
+#~ msgid "Notification on escalation"
+#~ msgstr "Notification on escalation"
+
+#~ msgid "Default 'stay observer' value"
+#~ msgstr "Default 'stay observer' value"
+
+#~ msgid "Default 'transfer mode' for group on requalification"
+#~ msgstr "Default 'transfer mode' for group on requalification"
+
+#~ msgid ""
+#~ "Warning, you defined the inherit option together with other option for "
+#~ "allowed entities. Only inherit will but taken into account"
+#~ msgstr ""
+#~ "Warning, you defined the inherit option together with other option for "
+#~ "allowed entities. Only inherit will but taken into account"
+
+#~ msgid "Inherit from global config :"
+#~ msgstr "Inherit from global config :"
+
+#~ msgid "Allow ticket transfer to entity"
+#~ msgstr "Allow ticket transfer to entity"
+
+#~ msgid "Transfer to an other entity"
+#~ msgstr "Transfer to an other entity"
+
+#~ msgid "Change my role"
+#~ msgstr "Change my role"
+
+#~ msgid ""
+#~ "This option allows you to change your role on the ticket after the "
+#~ "transfer"
+#~ msgstr ""
+#~ "This option allows you to change your role on the ticket after the "
+#~ "transfer"
+
+#~ msgid ""
+#~ "Because your belong to one of the observer groups, you cannot stop being "
+#~ "an observer"
+#~ msgstr ""
+#~ "Because your belong to one of the observer groups, you cannot stop being "
+#~ "an observer"
+
+#~ msgid "Observer only"
+#~ msgstr "Observer only"
+
+#~ msgid "Assigned and observer"
+#~ msgstr "Assigned and observer"
+
+#~ msgid "Assigned only"
+#~ msgstr "Assigned only"
+
+#~ msgid "No role anymore"
+#~ msgstr "No role anymore"
+
+#~ msgid "current role"
+#~ msgstr "current role"
+
+#~ msgid "Transfer explanation : \\n"
+#~ msgstr "Transfer explanation : \\n"
+
+#~ msgid "Ticket Transfer"
+#~ msgstr "Ticket Transfer"
+
+#~ msgid " It's not a transfer if you don't change the ticket location !"
+#~ msgstr " It's not a transfer if you don't change the ticket location !"
+
+#~ msgid "Profile tab name"
+#~ msgstr "Ticket transfer"
+
+#~ msgid "No transfer : category not defined"
+#~ msgstr "No transfer : category not defined"
+
+#~ msgid "Allow ticket transfer"
+#~ msgstr "Allow ticket transfer"
+
+#~ msgid "Ticket tab name"
+#~ msgstr "Ticket transfer"
+
+#~ msgid "Destination entity"
+#~ msgstr "Destination entity"
+
+#~ msgid "Category"
+#~ msgstr "Category"
+
+#~ msgctxt "tickettransfer"
+#~ msgid "Profile tab name"
+#~ msgstr "Ticket transfer"
+
+#~ msgctxt "tickettransfer"
+#~ msgid "Ticket transfer plugin settings"
+#~ msgstr "Settings for plugin Ticket transfer"
+
+#~ msgctxt "tickettransfer"
+#~ msgid "Allow ticket transfer"
+#~ msgstr "Allow ticket transfer"
+
+#~ msgctxt "tickettransfer"
+#~ msgid "Transfer to an other entity"
+#~ msgstr "Transfer to an other entity"
+
+#~ msgctxt "tickettransfer"
+#~ msgid "Plugin has been tested only for GLPI 0.84.8"
+#~ msgstr "Plugin has been tested only for GLPI 0.84.8"
+
+#~ msgctxt "tickettransfer"
+#~ msgid "Ticket tab name"
+#~ msgstr "Ticket transfer"

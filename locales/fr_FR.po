@@ -1,0 +1,263 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Ticket transfer\n"
+"POT-Creation-Date: 2016-02-09 22:41+0100\n"
+"PO-Revision-Date: 2016-02-09 22:43+0100\n"
+"Last-Translator: Etienne <etienne-github@outlook.fr>\n"
+"Language-Team: Etiennef <Etienne-github@outlook.fr>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.6\n"
+"X-Poedit-Basepath: ../.\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __:1,2t\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: inc/config.class.php:172
+msgid ""
+"Warning, you defined the inherit option together with other option. Only "
+"inherit will but taken into account"
+msgstr ""
+"Attention, vous avec défini l'option 'hériter' en même temps que d'autres "
+"options. Seul l'option 'hériter' sera prise en compte."
+
+#: inc/config.class.php:345
+msgid "Global configuration for plugin "
+msgstr "Configuration générale pour le plugin"
+
+#: inc/config.class.php:346
+msgid "Entity configuration for plugin "
+msgstr "Configuration pour l'entité du plugin"
+
+#: inc/config.class.php:347
+msgid "Profile configuration for plugin "
+msgstr "Configuration pour le profil du plugin"
+
+#: inc/config.class.php:348
+msgid "User preference for plugin "
+msgstr "Préférences pour le plugin"
+
+#: inc/config.class.php:361
+msgid "Inherit from global configuration"
+msgstr "Hériter de la configuration générale"
+
+#: inc/config.class.php:362
+msgid "Inherit from entity configuration"
+msgstr "Hériter de la configuration de l'entité"
+
+#: inc/config.class.php:363
+msgid "Inherit from profile configuration"
+msgstr "Hériter de la configuration du profil"
+
+#: inc/config.class.php:364
+msgid "Inherit from user preference"
+msgstr "Hériter des préférences personnelles"
+
+#: setup.php:24
+msgid "Plugin has been tested only for GLPI 0.84.8"
+msgstr "Ce plugin n'a été testé que pour GLPI 0.84.8"
+
+#~ msgid "Ticket transfer plugin settings"
+#~ msgstr "Paramétrage du plugin Ticket transfer"
+
+#~ msgid "Inherit from global config"
+#~ msgstr "Hériter de la configuration globale"
+
+#~ msgid "Invalid input : "
+#~ msgstr "Entrée invalide :"
+
+#~ msgid ""
+#~ "You must change the ticket location to do a transfer (at least one in "
+#~ "entity, type or category)"
+#~ msgstr ""
+#~ "Vous devez changer la localisation du ticket pour faire un transfert (au "
+#~ "moins paramêtre parmis entité, type ou catégorie)"
+
+#~ msgid "You must chose a new group to do a transfer"
+#~ msgstr "Vous devez choisir un nouveau groupe pour faire une escalade"
+
+#~ msgid "Transfer explanation / justification"
+#~ msgstr "Explication / justification du transfert"
+
+#~ msgid "You must give a transfer justification"
+#~ msgstr "Vous devez obligatoirement justifier le transfert"
+
+#~ msgid "%s transfers a ticket"
+#~ msgstr "%s a transféré un ticket"
+
+#~ msgid "Successful transfer"
+#~ msgstr "Transfert réussi"
+
+#~ msgid "Allow requalification"
+#~ msgstr "Autoriser la requalification"
+
+#~ msgid "Allow escalation"
+#~ msgstr "Autoriser l'escalade"
+
+#~ msgid "Notification on requalification"
+#~ msgstr "Notification lors d'une requalification"
+
+#~ msgid "Always"
+#~ msgstr "Toujours"
+
+#~ msgid "Only when assign group changes"
+#~ msgstr "Seulement si le groupe assigné change"
+
+#~ msgid "Never"
+#~ msgstr "Jamais"
+
+#~ msgid "Only when the user doing the transfer is not in destination group"
+#~ msgstr ""
+#~ "Seulement si l'utilisateur faisant l'excalade n'est pas dans le groupe de "
+#~ "destination"
+
+#~ msgid "Allowed entities"
+#~ msgstr "Entités vers lesquelles le transfert est aurtorisé"
+
+#~ msgid "Force transfer justification"
+#~ msgstr "Forcer l'utilisateur à justifier les transferts"
+
+#~ msgid "Keep current status"
+#~ msgstr "Conserver la situation actuelle"
+
+#~ msgid "Yes, but only if I'm not already in an observer group"
+#~ msgstr ""
+#~ "Oui, mais seulement si je ne fais pas déjà partie d'un groupe "
+#~ "d'observateurs"
+
+#~ msgid "Keep current group"
+#~ msgstr "Conserver le groupe actuel"
+
+#~ msgid "Automatic transfer"
+#~ msgstr "Transfert automatique"
+
+#~ msgid "Ticket transfer"
+#~ msgstr "Ticket transfer"
+
+#~ msgid "Ticket requalification"
+#~ msgstr "Requalification d'un ticket"
+
+#~ msgid "Ticket escalation"
+#~ msgstr "Escalade d'un ticket"
+
+#~ msgid "Transfer mode"
+#~ msgstr "Mode de transfert"
+
+#~ msgid "Keep me observer"
+#~ msgstr "Rester observateur"
+
+#~ msgid "Add me as observer"
+#~ msgstr "M'ajouter en observateur"
+
+#~ msgid ""
+#~ "This option only sets if you are personnaly observer, but it will not "
+#~ "change observer groups. This means you will stay observer no matter what"
+#~ msgstr ""
+#~ "Cette option règle seulement le fait d'être nomminativement observateur, "
+#~ "mais ne change pas les groupes d'observateur. Cela signifie que vous "
+#~ "resterez de toute façon observateur après le transfert."
+
+#~ msgid "You are in an observer group"
+#~ msgstr "Vous faites partie d'un groupe d'observateurs"
+
+#~ msgid "Transfer somewhere else"
+#~ msgstr "Requalifier le ticket"
+
+#~ msgid "Transfer to an other group"
+#~ msgstr "Escalader le ticket"
+
+#~ msgid "Keep attribution"
+#~ msgstr "Conserver l'attribution actuelle"
+
+#~ msgid "This category does not allow automatic transfer"
+#~ msgstr "Cette catégorie ne permet pas le transfert automatique du ticket"
+
+#~ msgid "Notification on escalation"
+#~ msgstr "Notification lors d'une escalade"
+
+#~ msgid "Default 'stay observer' value"
+#~ msgstr "Valeur par défaut pour 'rester observateur'"
+
+#~ msgid "Default 'transfer mode' for group on requalification"
+#~ msgstr "Mode de transfert préféré"
+
+#~ msgid ""
+#~ "Warning, you defined the inherit option together with other option for "
+#~ "allowed entities. Only inherit will but taken into account"
+#~ msgstr ""
+#~ "Attention, vous avec défini l'option 'hériter' en même temps que d'autres "
+#~ "options. Seul l'option 'hériter' sera prise en compte."
+
+#~ msgid "Inherit from global config :"
+#~ msgstr "Hériter de la configuration globale"
+
+#~ msgid "Allow ticket transfer to entity"
+#~ msgstr "Autoriser le transfert vers une autre entité"
+
+#~ msgid "Transfer to an other entity"
+#~ msgstr "Tranférer vers une autre entité"
+
+#~ msgid "Change my role"
+#~ msgstr "Changer mon rôle"
+
+#~ msgid ""
+#~ "This option allows you to change your role on the ticket after the "
+#~ "transfer"
+#~ msgstr ""
+#~ "Cette option vous permet de changer votre rôle vis-à-vis de ce ticket en "
+#~ "même temps que vous le transférez"
+
+#~ msgid ""
+#~ "Because your belong to one of the observer groups, you cannot stop being "
+#~ "an observer"
+#~ msgstr ""
+#~ "Vous ne pouvez pas cesser d'être observeteur car vous faites partie d'un "
+#~ "groupe d'observateurs"
+
+#~ msgid "Observer only"
+#~ msgstr "Observateur seulement"
+
+#~ msgid "Assigned and observer"
+#~ msgstr "Observateur et assigné à"
+
+#~ msgid "Assigned only"
+#~ msgstr "Assigné à seulement"
+
+#~ msgid "No role anymore"
+#~ msgstr "Plus aucun rôle"
+
+#~ msgid "current role"
+#~ msgstr "situation actuelle"
+
+#~ msgid "Transfer explanation : \\n"
+#~ msgstr "Explication/justification du transfert : \\n"
+
+#~ msgid "No transfer : category not defined"
+#~ msgstr ""
+#~ "Vous devez impérativement sélectionner une catégorie. Transfert annulé"
+
+#~ msgid " It's not a transfer if you don't change the ticket location !"
+#~ msgstr ""
+#~ "Vous devez changer l'emplacement du ticket pour faire un transfert (au "
+#~ "moins un des trois parmis entité, type et catégorie)"
+
+#~ msgid "Transfer explaination"
+#~ msgstr "Explication du transfert : "
+
+#~ msgid "Profile tab name"
+#~ msgstr "Ticket transfer"
+
+#~ msgid "transfer_justification"
+#~ msgstr "Explication / justification du transfert"
+
+#~ msgid "transfer_justification_prefix"
+#~ msgstr "Explication du transfer"
+
+#~ msgid "Allow ticket transfer"
+#~ msgstr "Autoriser à transférer les tickets"
+
+#~ msgid "Ticket tab name"
+#~ msgstr "Ticket Transfer"
