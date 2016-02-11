@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Ticket transfer\n"
-"POT-Creation-Date: 2016-02-09 22:41+0100\n"
-"PO-Revision-Date: 2016-02-09 22:43+0100\n"
+"POT-Creation-Date: 2016-02-11 21:59+0100\n"
+"PO-Revision-Date: 2016-02-11 22:00+0100\n"
 "Last-Translator: Etienne <etienne-github@outlook.fr>\n"
 "Language-Team: Etiennef <Etienne-github@outlook.fr>\n"
 "Language: fr_FR\n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Poedit-KeywordsList: __:1,2t\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: inc/config.class.php:172
+#: inc/config.class.php:174
 msgid ""
 "Warning, you defined the inherit option together with other option. Only "
 "inherit will but taken into account"
@@ -24,41 +24,55 @@ msgstr ""
 "Attention, vous avec défini l'option 'hériter' en même temps que d'autres "
 "options. Seul l'option 'hériter' sera prise en compte."
 
-#: inc/config.class.php:345
+#: inc/config.class.php:362
 msgid "Global configuration for plugin "
 msgstr "Configuration générale pour le plugin"
 
-#: inc/config.class.php:346
-msgid "Entity configuration for plugin "
-msgstr "Configuration pour l'entité du plugin"
+#: inc/config.class.php:363
+msgid "User entity configuration for plugin "
+msgstr "Configuration pour l'entité de l'utilisateur, pour le plugin"
 
-#: inc/config.class.php:347
+#: inc/config.class.php:364
+msgid "Item entity configuration for plugin "
+msgstr "Configuration pour l'entité de l'objet, pour le plugin"
+
+#: inc/config.class.php:365
 msgid "Profile configuration for plugin "
 msgstr "Configuration pour le profil du plugin"
 
-#: inc/config.class.php:348
+#: inc/config.class.php:366
 msgid "User preference for plugin "
 msgstr "Préférences pour le plugin"
 
-#: inc/config.class.php:361
+#: inc/config.class.php:379
 msgid "Inherit from global configuration"
 msgstr "Hériter de la configuration générale"
 
-#: inc/config.class.php:362
-msgid "Inherit from entity configuration"
-msgstr "Hériter de la configuration de l'entité"
+#: inc/config.class.php:380
+msgid "Inherit from user entity configuration"
+msgstr "Hériter de la configuration de l'entité de l'utilisateur"
 
-#: inc/config.class.php:363
+#: inc/config.class.php:381
+msgid "Inherit from item entity configuration"
+msgstr "Hériter de la configuration de l'entité de l'objet"
+
+#: inc/config.class.php:382
 msgid "Inherit from profile configuration"
 msgstr "Hériter de la configuration du profil"
 
-#: inc/config.class.php:364
+#: inc/config.class.php:383
 msgid "Inherit from user preference"
 msgstr "Hériter des préférences personnelles"
 
 #: setup.php:24
 msgid "Plugin has been tested only for GLPI 0.84.8"
 msgstr "Ce plugin n'a été testé que pour GLPI 0.84.8"
+
+#~ msgid "Entity configuration for plugin "
+#~ msgstr "Configuration pour l'entité du plugin"
+
+#~ msgid "Inherit from entity configuration"
+#~ msgstr "Hériter de la configuration de l'entité"
 
 #~ msgid "Ticket transfer plugin settings"
 #~ msgstr "Paramétrage du plugin Ticket transfer"

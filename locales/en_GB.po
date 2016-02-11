@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-02-09 22:41+0100\n"
-"PO-Revision-Date: 2016-02-09 22:41+0100\n"
+"POT-Creation-Date: 2016-02-11 21:59+0100\n"
+"PO-Revision-Date: 2016-02-11 21:59+0100\n"
 "Last-Translator: Etienne <etienne-github@outlook.fr>\n"
 "Language-Team: Etiennef <etienne-github@outlook.fr>\n"
 "Language: en_GB\n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: inc/config.class.php:172
+#: inc/config.class.php:174
 msgid ""
 "Warning, you defined the inherit option together with other option. Only "
 "inherit will but taken into account"
@@ -24,41 +24,55 @@ msgstr ""
 "Warning, you defined the inherit option together with other option. Only "
 "inherit will but taken into account"
 
-#: inc/config.class.php:345
+#: inc/config.class.php:362
 msgid "Global configuration for plugin "
 msgstr "Global configuration for plugin "
 
-#: inc/config.class.php:346
-msgid "Entity configuration for plugin "
-msgstr "Entity configuration for plugin "
+#: inc/config.class.php:363
+msgid "User entity configuration for plugin "
+msgstr "User entity configuration for plugin "
 
-#: inc/config.class.php:347
+#: inc/config.class.php:364
+msgid "Item entity configuration for plugin "
+msgstr "Item entity configuration for plugin "
+
+#: inc/config.class.php:365
 msgid "Profile configuration for plugin "
 msgstr "Profile configuration for plugin "
 
-#: inc/config.class.php:348
+#: inc/config.class.php:366
 msgid "User preference for plugin "
 msgstr "User preference for plugin "
 
-#: inc/config.class.php:361
+#: inc/config.class.php:379
 msgid "Inherit from global configuration"
 msgstr "Inherit from global configuration"
 
-#: inc/config.class.php:362
-msgid "Inherit from entity configuration"
-msgstr "Inherit from entity configuration"
+#: inc/config.class.php:380
+msgid "Inherit from user entity configuration"
+msgstr "Inherit from user entity configuration"
 
-#: inc/config.class.php:363
+#: inc/config.class.php:381
+msgid "Inherit from item entity configuration"
+msgstr "Inherit from item entity configuration"
+
+#: inc/config.class.php:382
 msgid "Inherit from profile configuration"
 msgstr "Inherit from profile configuration"
 
-#: inc/config.class.php:364
+#: inc/config.class.php:383
 msgid "Inherit from user preference"
 msgstr "Inherit from user preference"
 
 #: setup.php:24
 msgid "Plugin has been tested only for GLPI 0.84.8"
 msgstr "Plugin has been tested only for GLPI 0.84.8"
+
+#~ msgid "Entity configuration for plugin "
+#~ msgstr "Entity configuration for plugin "
+
+#~ msgid "Inherit from entity configuration"
+#~ msgstr "Inherit from entity configuration"
 
 #~ msgid "Ticket transfer plugin settings"
 #~ msgstr "Ticket transfer plugin settings"

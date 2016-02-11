@@ -11,13 +11,14 @@
  */
 class PluginConfigmanagerConfig extends CommonDBTM {
 	const TYPE_GLOBAL = 'global';
-	const TYPE_ENTITY = 'entity';
+	const TYPE_USERENTITY = 'userentity';
+	const TYPE_ITEMENTITY = 'itementity';
 	const TYPE_PROFILE = 'profile';
 	const TYPE_USER = 'user';
 	
 	private final static function getAllConfigTypes() {
 		//CHANGE WHEN ADD CONFIG_TYPE
-		return array(self::TYPE_GLOBAL, self::TYPE_ENTITY, self::TYPE_PROFILE, self::TYPE_USER);
+		return array(self::TYPE_GLOBAL, self::TYPE_USERENTITY, self::TYPE_ITEMENTITY, self::TYPE_PROFILE, self::TYPE_USER);
 	}
 	
 	
@@ -94,15 +95,15 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		//CHANGE WHEN ADD GLPI_TYPE
 		switch($glpiobjecttype) {
 			case 'Config' :
-				return self::TYPE_GLOBAL;
+				return array(self::TYPE_GLOBAL);
 			case 'Entity' :
-				return self::TYPE_ENTITY;
+				return array(self::TYPE_USERENTITY, self::TYPE_ITEMENTITY);
 			case 'Profile' :
-				return self::TYPE_PROFILE;
+				return array(self::TYPE_PROFILE);
 			case 'User' :
-				return self::TYPE_USER;
+				return array(self::TYPE_USER);
 			case 'Preference' :
-				return self::TYPE_USER;
+				return array(self::TYPE_USER);
 			default :
 				return '';
 		}
@@ -142,7 +143,8 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		switch($this->fields['config__type']) {
 			case self::TYPE_GLOBAL :
 				return Session::haveRight('config', $right);
-			case self::TYPE_ENTITY :
+			case self::TYPE_USERENTITY :
+			case self::TYPE_ITEMENTITY :
 				return (new Entity())->can($this->fields['config__type_id'], $right);
 			case self::TYPE_PROFILE :
 				return Session::haveRight('profile', $right);
@@ -181,23 +183,27 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	}
 
 	
-	private static $configValues_instance = NULL;
+	private static $configValues_instance = array();
 	/**
 	 * Réccupére la conficuration courante Fonctionne avec un singleton pour éviter les appels à la bdd inutiles
 	 */
-	public final static function getConfigValues() {
-		//TODO permettre de charger la config en préréglant certains champs
-		if(! isset(self::$configValues_instance)) {
-			self::$configValues_instance = self::readFromDB();
+	public final static function getConfigValues($values=array()) {
+		// $clé représentant le tableau de paramètres
+		ksort($values);
+		$key = json_encode($values);
+		
+		if(! isset(self::$configValues_instance[$key])) {
+			self::$configValues_instance[$key] = self::readFromDB($values);
 		}
-		return self::$configValues_instance;
+		return self::$configValues_instance[$key];
 	}
 	
-	private final static function getTypeIdForCurrentConfig($type) {
+	private final static function getTypeIdForCurrentConfig($type, $values) {
 		//CHANGE WHEN ADD CONFIG_TYPE
 		switch($type) {
 			case self::TYPE_GLOBAL : return 0;
-			case self::TYPE_ENTITY : return $_SESSION['glpiactive_entity'];
+			case self::TYPE_USERENTITY : return $_SESSION['glpiactive_entity'];
+			case self::TYPE_ITEMENTITY : return isset($values['itementity'])?$values['itementity']:false;
 			case self::TYPE_PROFILE : return $_SESSION['glpiactiveprofile']['id'];
 			case self::TYPE_USER : return Session::getLoginUserID();
 			default : return false;
@@ -208,14 +214,14 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	 * Calcul de la configuration applicable dans la situation actuelle, en tenant compte des différents héritages.
 	 * @return array tableau de valeurs de configuration à appliquer
 	 */
-	private final static function readFromDB() {
+	private final static function readFromDB($values) {
 		$configObject = new static();
 		
 		// lit dans la DB les configs susceptibles de s'appliquer
 		$configTable = array();
 		foreach(self::getAllConfigTypes() as $type) {
-			$type_id = self::getTypeIdForCurrentConfig($type);
-			if($configObject->getFromDBByQuery("WHERE `config__type`='$type' AND `config__type_id`='$type_id'")) {
+			$type_id = self::getTypeIdForCurrentConfig($type, $values);
+			if($type_id!==false && $configObject->getFromDBByQuery("WHERE `config__type`='$type' AND `config__type_id`='$type_id'")) {
 				$configTable[$type] = $configObject->fields;
 			}
 		}
@@ -241,12 +247,18 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	}
 
 	final function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
-		$type = self::getTypeForGLPIObject($item->getType());
-		if($type != '' && self::hasFieldsForType($type)) {
-			return $this->getName();
-		} else {
+		if(($types = self::getTypeForGLPIObject($item->getType())) === '') {
 			return '';
 		}
+	
+		$res = array();
+		foreach ($types as $type) {
+			if(self::hasFieldsForType($type)) {
+				$res[] = static::getTabNameForConfigType($type);
+			}
+		}
+	
+		return $res;
 	}
 
 	private final static function getTypeIdForGLPIItem(CommonGLPI $item) {
@@ -261,8 +273,13 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		}
 	}
 	
+	private function getTabNameForConfigType($type) {
+		return static::getName();
+	}
+	
+	
 	final static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
-		$type = self::getTypeForGLPIObject($item->getType());
+		$type = self::getTypeForGLPIObject($item->getType())[$tabnum];
 		$type_id = self::getTypeIdForGLPIItem($item);
 		
 		$config = new static();
@@ -343,7 +360,8 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		//CHANGE WHEN ADD CONFIG_TYPE
 		switch($type) {
 			case self::TYPE_GLOBAL : return __('Global configuration for plugin ', 'configmanager') . $pluginName;
-			case self::TYPE_ENTITY : return __('Entity configuration for plugin ', 'configmanager') . $pluginName;
+			case self::TYPE_USERENTITY : return __('User entity configuration for plugin ', 'configmanager') . $pluginName;
+			case self::TYPE_ITEMENTITY : return __('Item entity configuration for plugin ', 'configmanager') . $pluginName;
 			case self::TYPE_PROFILE : return __('Profile configuration for plugin ', 'configmanager') . $pluginName;
 			case self::TYPE_USER : return __('User preference for plugin ', 'configmanager') . $pluginName;
 			default : return false;
@@ -359,7 +377,8 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		//CHANGE WHEN ADD CONFIG_TYPE
 		switch($type) {
 			case self::TYPE_GLOBAL : return __('Inherit from global configuration', 'configmanager');
-			case self::TYPE_ENTITY : return __('Inherit from entity configuration', 'configmanager');
+			case self::TYPE_USERENTITY : return __('Inherit from user entity configuration', 'configmanager');
+			case self::TYPE_ITEMENTITY : return __('Inherit from item entity configuration', 'configmanager');
 			case self::TYPE_PROFILE : return __('Inherit from profile configuration', 'configmanager');
 			case self::TYPE_USER : return __('Inherit from user preference', 'configmanager');
 			default : return false;
