@@ -170,8 +170,11 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 			if(isset($input[$param]) && self::isMultipleParam($param)) {
 				if(in_array(self::INHERIT_VALUE, $input[$param])) {
 					if(count($input[$param]) > 1) {
-						//TODO personnaliser pour l'option
-						Session::addMessageAfterRedirect(__('Warning, you defined the inherit option together with other option. Only inherit will but taken into account', 'configmanager'), false, ERROR);
+						//TRANS: %s is the description of the option
+						$msg = sprintf(__('Warning, you defined the inherit option together with one or more other options for the parameter "%s".', 'configmanager'), $desc['text']);
+						$msg .= ' ' . __('Only the inherit option will be taken into account', 'configmanager');
+						
+						Session::addMessageAfterRedirect($msg, false, ERROR);
 					}
 					$input[$param] = self::INHERIT_VALUE;
 				} else {
@@ -188,7 +191,7 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	 * Réccupére la conficuration courante Fonctionne avec un singleton pour éviter les appels à la bdd inutiles
 	 */
 	public final static function getConfigValues($values=array()) {
-		// $clé représentant le tableau de paramètres
+		// $key représentant le tableau de paramètres
 		ksort($values);
 		$key = json_encode($values);
 		
@@ -420,11 +423,16 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	private static function getConfigPageTitle($type, $pluginName) {
 		//CHANGE WHEN ADD CONFIG_TYPE
 		switch($type) {
-			case self::TYPE_GLOBAL : return __('Global configuration for plugin ', 'configmanager') . $pluginName;
-			case self::TYPE_USERENTITY : return __('User entity configuration for plugin ', 'configmanager') . $pluginName;
-			case self::TYPE_ITEMENTITY : return __('Item entity configuration for plugin ', 'configmanager') . $pluginName;
-			case self::TYPE_PROFILE : return __('Profile configuration for plugin ', 'configmanager') . $pluginName;
-			case self::TYPE_USER : return __('User preference for plugin ', 'configmanager') . $pluginName;
+			//TRANS: %s is the plugin name
+			case self::TYPE_GLOBAL : return sprintf(__('Global configuration for plugin %s', 'configmanager'), $pluginName);
+			//TRANS: %s is the plugin name
+			case self::TYPE_USERENTITY : return sprintf(__('User entity configuration for plugin %s', 'configmanager'), $pluginName);
+			//TRANS: %s is the plugin name
+			case self::TYPE_ITEMENTITY : return sprintf(__('Item entity configuration for plugin %s', 'configmanager'), $pluginName);
+			//TRANS: %s is the plugin name
+			case self::TYPE_PROFILE : return sprintf(__('Profile configuration for plugin %s', 'configmanager'), $pluginName);
+			//TRANS: %s is the plugin name
+			case self::TYPE_USER : return sprintf(__('User preference for plugin %s', 'configmanager'), $pluginName);
 			default : return false;
 		}
 	}

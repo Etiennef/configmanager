@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-02-11 21:59+0100\n"
-"PO-Revision-Date: 2016-02-11 21:59+0100\n"
+"POT-Creation-Date: 2016-02-12 22:43+0100\n"
+"PO-Revision-Date: 2016-02-12 22:43+0100\n"
 "Last-Translator: Etienne <etienne-github@outlook.fr>\n"
 "Language-Team: Etiennef <etienne-github@outlook.fr>\n"
 "Language: en_GB\n"
@@ -17,56 +17,88 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 
 #: inc/config.class.php:174
+#, php-format
 msgid ""
-"Warning, you defined the inherit option together with other option. Only "
-"inherit will but taken into account"
+"Warning, you defined the inherit option together with one or more other "
+"options for the parameter \"%s\"."
 msgstr ""
-"Warning, you defined the inherit option together with other option. Only "
-"inherit will but taken into account"
+"Warning, you defined the inherit option together with one or more other "
+"options for the parameter \"%s\"."
 
-#: inc/config.class.php:362
-msgid "Global configuration for plugin "
-msgstr "Global configuration for plugin "
+#: inc/config.class.php:175
+msgid "Only the inherit option will be taken into account"
+msgstr "Only the inherit option will be taken into account"
 
-#: inc/config.class.php:363
-msgid "User entity configuration for plugin "
-msgstr "User entity configuration for plugin "
+#: inc/config.class.php:427
+#, php-format
+msgid "Global configuration for plugin %s"
+msgstr "Global configuration for plugin %s"
 
-#: inc/config.class.php:364
-msgid "Item entity configuration for plugin "
-msgstr "Item entity configuration for plugin "
+#: inc/config.class.php:429
+#, php-format
+msgid "User entity configuration for plugin %s"
+msgstr "User entity configuration for plugin %s"
 
-#: inc/config.class.php:365
-msgid "Profile configuration for plugin "
-msgstr "Profile configuration for plugin "
+#: inc/config.class.php:431
+#, php-format
+msgid "Item entity configuration for plugin %s"
+msgstr "Item entity configuration for plugin %s"
 
-#: inc/config.class.php:366
-msgid "User preference for plugin "
-msgstr "User preference for plugin "
+#: inc/config.class.php:433
+#, php-format
+msgid "Profile configuration for plugin %s"
+msgstr "Profile configuration for plugin %s"
 
-#: inc/config.class.php:379
+#: inc/config.class.php:435
+#, php-format
+msgid "User preference for plugin %s"
+msgstr "User preference for plugin %s"
+
+#: inc/config.class.php:448
 msgid "Inherit from global configuration"
 msgstr "Inherit from global configuration"
 
-#: inc/config.class.php:380
+#: inc/config.class.php:449
 msgid "Inherit from user entity configuration"
 msgstr "Inherit from user entity configuration"
 
-#: inc/config.class.php:381
+#: inc/config.class.php:450
 msgid "Inherit from item entity configuration"
 msgstr "Inherit from item entity configuration"
 
-#: inc/config.class.php:382
+#: inc/config.class.php:451
 msgid "Inherit from profile configuration"
 msgstr "Inherit from profile configuration"
 
-#: inc/config.class.php:383
+#: inc/config.class.php:452
 msgid "Inherit from user preference"
 msgstr "Inherit from user preference"
 
 #: setup.php:24
 msgid "Plugin has been tested only for GLPI 0.84.8"
 msgstr "Plugin has been tested only for GLPI 0.84.8"
+
+#~ msgid ""
+#~ "Warning, you defined the inherit option together with other option. Only "
+#~ "inherit will but taken into account"
+#~ msgstr ""
+#~ "Warning, you defined the inherit option together with other option. Only "
+#~ "inherit will but taken into account"
+
+#~ msgid "Global configuration for plugin "
+#~ msgstr "Global configuration for plugin "
+
+#~ msgid "User entity configuration for plugin "
+#~ msgstr "User entity configuration for plugin "
+
+#~ msgid "Item entity configuration for plugin "
+#~ msgstr "Item entity configuration for plugin "
+
+#~ msgid "Profile configuration for plugin "
+#~ msgstr "Profile configuration for plugin "
+
+#~ msgid "User preference for plugin "
+#~ msgstr "User preference for plugin "
 
 #~ msgid "Entity configuration for plugin "
 #~ msgstr "Entity configuration for plugin "

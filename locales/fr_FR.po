@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Ticket transfer\n"
-"POT-Creation-Date: 2016-02-11 21:59+0100\n"
-"PO-Revision-Date: 2016-02-11 22:00+0100\n"
+"POT-Creation-Date: 2016-02-12 22:40+0100\n"
+"PO-Revision-Date: 2016-02-12 22:43+0100\n"
 "Last-Translator: Etienne <etienne-github@outlook.fr>\n"
 "Language-Team: Etiennef <Etienne-github@outlook.fr>\n"
 "Language: fr_FR\n"
@@ -17,56 +17,88 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 
 #: inc/config.class.php:174
+#, php-format
 msgid ""
-"Warning, you defined the inherit option together with other option. Only "
-"inherit will but taken into account"
+"Warning, you defined the inherit option together with one or more other "
+"options for the parameter \"%s\"."
 msgstr ""
-"Attention, vous avec défini l'option 'hériter' en même temps que d'autres "
-"options. Seul l'option 'hériter' sera prise en compte."
+"Attention, vous avez défini l'option \"hériter\" en même temps qu'un ou "
+"plusieurs autres options pour le paramètre \"%s\"."
 
-#: inc/config.class.php:362
-msgid "Global configuration for plugin "
-msgstr "Configuration générale pour le plugin"
+#: inc/config.class.php:175
+msgid "Only the inherit option will be taken into account"
+msgstr "Seule l'option \"hériter\" sera prise en compte"
 
-#: inc/config.class.php:363
-msgid "User entity configuration for plugin "
-msgstr "Configuration pour l'entité de l'utilisateur, pour le plugin"
+#: inc/config.class.php:427
+#, php-format
+msgid "Global configuration for plugin %s"
+msgstr "Configuration globale pour le plugin %s"
 
-#: inc/config.class.php:364
-msgid "Item entity configuration for plugin "
-msgstr "Configuration pour l'entité de l'objet, pour le plugin"
+#: inc/config.class.php:429
+#, php-format
+msgid "User entity configuration for plugin %s"
+msgstr "Configuration sur l'entité de l'utilisateur pour le plugin %s"
 
-#: inc/config.class.php:365
-msgid "Profile configuration for plugin "
-msgstr "Configuration pour le profil du plugin"
+#: inc/config.class.php:431
+#, php-format
+msgid "Item entity configuration for plugin %s"
+msgstr "Configuration sur l'entité d'un objet manipulé pour le plugin %s"
 
-#: inc/config.class.php:366
-msgid "User preference for plugin "
-msgstr "Préférences pour le plugin"
+#: inc/config.class.php:433
+#, php-format
+msgid "Profile configuration for plugin %s"
+msgstr "Configuration par profil pour le plugin %s"
 
-#: inc/config.class.php:379
+#: inc/config.class.php:435
+#, php-format
+msgid "User preference for plugin %s"
+msgstr "Préférences personnelles pour le plugin %s"
+
+#: inc/config.class.php:448
 msgid "Inherit from global configuration"
 msgstr "Hériter de la configuration générale"
 
-#: inc/config.class.php:380
+#: inc/config.class.php:449
 msgid "Inherit from user entity configuration"
 msgstr "Hériter de la configuration de l'entité de l'utilisateur"
 
-#: inc/config.class.php:381
+#: inc/config.class.php:450
 msgid "Inherit from item entity configuration"
 msgstr "Hériter de la configuration de l'entité de l'objet"
 
-#: inc/config.class.php:382
+#: inc/config.class.php:451
 msgid "Inherit from profile configuration"
 msgstr "Hériter de la configuration du profil"
 
-#: inc/config.class.php:383
+#: inc/config.class.php:452
 msgid "Inherit from user preference"
 msgstr "Hériter des préférences personnelles"
 
 #: setup.php:24
 msgid "Plugin has been tested only for GLPI 0.84.8"
 msgstr "Ce plugin n'a été testé que pour GLPI 0.84.8"
+
+#~ msgid ""
+#~ "Warning, you defined the inherit option together with other option. Only "
+#~ "inherit will but taken into account"
+#~ msgstr ""
+#~ "Attention, vous avec défini l'option 'hériter' en même temps que d'autres "
+#~ "options. Seul l'option 'hériter' sera prise en compte."
+
+#~ msgid "Global configuration for plugin "
+#~ msgstr "Configuration générale pour le plugin"
+
+#~ msgid "User entity configuration for plugin "
+#~ msgstr "Configuration pour l'entité de l'utilisateur, pour le plugin"
+
+#~ msgid "Item entity configuration for plugin "
+#~ msgstr "Configuration pour l'entité de l'objet, pour le plugin"
+
+#~ msgid "Profile configuration for plugin "
+#~ msgstr "Configuration pour le profil du plugin"
+
+#~ msgid "User preference for plugin "
+#~ msgstr "Préférences pour le plugin"
 
 #~ msgid "Entity configuration for plugin "
 #~ msgstr "Configuration pour l'entité du plugin"
