@@ -213,9 +213,6 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 
 	
 	private static $configValues_instance = array();
-	/**
-	 * Réccupére la conficuration courante Fonctionne avec un singleton pour éviter les appels à la bdd inutiles
-	 */
 	
 	/**
 	 * Réccupère l'état de la configuration courante, en tenant compte de l'utilisateur, son profil...
@@ -240,7 +237,7 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	 * @param string $type type de configuration
 	 * @param array:string $values tableau indiquant la valeur des paramètres non intrinscèques. Si ignoré, les configuration de ces objets seront ignorées
 	 * 		- self::TYPE_ITEMENTITY => n° de l'entité de l'objet dont on souhaite obtenir la configuration.
-	 * @return number|unknown|Ambigous <boolean, unknown>|Ambigous <false, number>|boolean
+	 * @return type_id à recherche en BDD
 	 */
 	private final static function getTypeIdForCurrentConfig($type, $values) {
 		//CHANGE WHEN ADD CONFIG_TYPE
@@ -377,13 +374,13 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		
 		echo '<table class="tab_cadre_fixe">';
 		echo '<tr><th colspan="2" class="center b">';
-		echo static::getConfigPageTitle($this->fields['config__type']);
+		echo $this->getConfigPageTitle($this->fields['config__type']);
 		echo '</th></tr>';
 		
 		foreach(self::getConfigParams() as $param => $desc) {
 			$pos = array_search($this->fields['config__type'], $desc['types']);
 			
-			$inheritText = isset($desc['types'][$pos + 1])?static::getInheritFromMessage($desc['types'][$pos+1]):'';
+			$inheritText = isset($desc['types'][$pos + 1])?$this->getInheritFromMessage($desc['types'][$pos+1]):'';
 			
 			if($pos !== false) {
 				
@@ -513,19 +510,19 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	 * @param unknown $type type de configuration
 	 * @return string titre à afficher
 	 */
-	private static function getConfigPageTitle($type) {
+	private function getConfigPageTitle($type) {
 		//CHANGE WHEN ADD CONFIG_TYPE
 		switch($type) {
 			//TRANS: %s is the plugin name
-			case self::TYPE_GLOBAL : return sprintf(__('Global configuration for plugin %s', 'configmanager'), static::getName());
+			case self::TYPE_GLOBAL : return sprintf(__('Global configuration for plugin %s', 'configmanager'), $this->getName());
 			//TRANS: %s is the plugin name
-			case self::TYPE_USERENTITY : return sprintf(__('User entity configuration for plugin %s', 'configmanager'), static::getName());
+			case self::TYPE_USERENTITY : return sprintf(__('User entity configuration for plugin %s', 'configmanager'), $this->getName());
 			//TRANS: %s is the plugin name
-			case self::TYPE_ITEMENTITY : return sprintf(__('Item entity configuration for plugin %s', 'configmanager'), static::getName());
+			case self::TYPE_ITEMENTITY : return sprintf(__('Item entity configuration for plugin %s', 'configmanager'), $this->getName());
 			//TRANS: %s is the plugin name
-			case self::TYPE_PROFILE : return sprintf(__('Profile configuration for plugin %s', 'configmanager'), static::getName());
+			case self::TYPE_PROFILE : return sprintf(__('Profile configuration for plugin %s', 'configmanager'), $this->getName());
 			//TRANS: %s is the plugin name
-			case self::TYPE_USER : return sprintf(__('User preference for plugin %s', 'configmanager'), static::getName());
+			case self::TYPE_USER : return sprintf(__('User preference for plugin %s', 'configmanager'), $this->getName());
 			default : return false;
 		}
 	}
@@ -536,7 +533,7 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	 * @param string $type le type de configuration dont on hérite
 	 * @return string le texte à afficher dans les options du paramètre.
 	 */
-	private static function getInheritFromMessage($type) {
+	private function getInheritFromMessage($type) {
 		//CHANGE WHEN ADD CONFIG_TYPE
 		switch($type) {
 			case self::TYPE_GLOBAL : return __('Inherit from global configuration', 'configmanager');
