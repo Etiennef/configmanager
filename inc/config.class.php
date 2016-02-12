@@ -310,31 +310,19 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		foreach(self::getConfigParams() as $param => $desc) {
 			$pos = array_search($this->fields['config__type'], $desc['types']);
 			
+			$inheritText = isset($desc['types'][$pos + 1])?static::getInheritFromMessage($desc['types'][$pos+1]):'';
+			
 			if($pos !== false) {
-				$options = isset($desc['options']) ? $desc['options'] : array();
-				$choices = $desc['values'];
-				
-				if(isset($desc['types'][$pos + 1])) {
-					//TODO En fait pas parfait, parce que si le niveau d'au-dessus hérite lui aussi, en fait c'est pas bon
-					// Idéalement, il faudrait aller chercher à quel niveau on hérite (ce qui permettrait au passage de connaitre et afficher la valeur héritée)
-					$choices[self::INHERIT_VALUE] = static::getInheritFromMessage($desc['types'][$pos+1]);
-				}
-				
-				if($this->fields[$param] != self::INHERIT_VALUE && self::isMultipleParam($param)) {
-					$options['values'] = importArrayFromDB($this->fields[$param]);
-				} else {
-					$options['values'] = array($this->fields[$param]);
-				}
 				
 				echo "<tr class='tab_bg_2'>";
 				echo "<td>" . $desc['text'] . "</td><td>";
-				if($can_write) {
-					Dropdown::showFromArray($param, $choices, $options);
+				
+				if(is_array($desc['values'])) {
+					self::showDropdown($param, $desc, $inheritText, $can_write);
 				} else {
-					foreach($options['values'] as $value) {
-						echo $choices[$value] . '</br>';
-					}
+					self::showTextInput($param, $desc, $inheritText, $can_write);
 				}
+				
 				echo "</td></tr>";
 			}
 		}
@@ -349,6 +337,79 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		echo '</table>';
 		Html::closeForm();
 	}
+	
+	private final function showDropdown($param, $desc, $inheritText, $can_write) {
+		$doesinherit = $this->fields[$param] === self::INHERIT_VALUE;
+		
+		$options = isset($desc['options']) ? $desc['options'] : array();
+		
+		$choices = $desc['values'];
+		if($inheritText) $choices[self::INHERIT_VALUE] = $inheritText;
+		
+		if($this->fields[$param] != self::INHERIT_VALUE && self::isMultipleParam($param)) {
+			$options['values'] = importArrayFromDB($this->fields[$param]);
+		} else {
+			$options['values'] = array($this->fields[$param]);
+		}
+		
+		if($can_write) {
+			Dropdown::showFromArray($param, $choices, $options);
+		} else {
+			if($doesinherit) {
+				echo $inheritText;
+			} else {
+				foreach($options['values'] as $value) {
+					if(isset($choices[$value])) { //test certes contreintuitif, mais nécessaire pour gérer le fait que la liste de choix puisse être variable selon les droits de l'utilisateur.
+						echo $choices[$value] . '</br>';
+					}
+				}
+			}
+		}
+	}
+	
+	
+	private final function showTextInput($param, $desc, $inheritText, $can_write) {
+		$size = isset($desc['options']['size']) ? $desc['options']['size'] : 50;
+		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 250;
+		$value = $this->fields[$param];
+		$doesinherit = $value === self::INHERIT_VALUE;
+		
+		if($can_write) {
+			if($inheritText !== '') {
+				// L'héritage est géré en mettant 2 champs, un caché, l'autre affiché, et en désactivant celui qui n'est pas pertinent.
+				// Un checkbox permet de choisir entre les deux
+				
+				$chkid = 'configmanager_checkbox_inherit_'.$param;
+				$txtid = 'configmanager_text_inherit_'.$param;
+				
+				echo $inheritText . ' <input type="checkbox" id="'.$chkid.'" '. ($doesinherit ? 'checked' : '') .'><br>';
+				echo '<input type="hidden" id="'.$txtid.'_inherit" value="'.self::INHERIT_VALUE.'" name="'.$param.'" size="'.$size.'" maxlength="'.$maxlength.'" '. (!$doesinherit ? 'disabled' : '') .'>';
+				echo '<input type="text" id="'.$txtid.'_value" value="'. ($doesinherit ? '' : $value) .'" name="'.$param.'" size="'.$size.'" maxlength="'.$maxlength.'" '. ($doesinherit ? 'disabled' : '') .'>';
+				
+				// Ajout du script permettant de basculer l'activation des champs de saisie
+				echo "<script>
+					Ext.get($chkid).addListener('change',function(ev, el){
+						var todisable = el.checked ? '{$txtid}_value' : '{$txtid}_inherit';
+						var toenable = el.checked ? '{$txtid}_inherit' : '{$txtid}_value';
+						
+						Ext.get(todisable).set({'disabled' : ''});
+						Ext.get(toenable).set({'disabled' : null}, false);
+					});
+				</script>";
+				
+			} else {
+				echo '<input type="text" name="'.$param.'" value="'.$value.'" size="'.$size.'" maxlength="'.$maxlength.'">';
+			}
+		} else {
+			if($doesinherit) {
+				echo $inheritText;
+			} else {
+				echo $value;
+			}
+		}
+	}
+	
+	
 	
 	private final static function isMultipleParam($param) {
 		$desc = self::getConfigParams()[$param];
