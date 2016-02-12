@@ -109,7 +109,7 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		}
 	}
 
-	private final function createEmpty($type, $type_id = 0) {
+	private final function createEmpty($type, $type_id) {
 		if($type == self::TYPE_GLOBAL) $type_id = 0;
 		
 		$input = array();
@@ -206,7 +206,7 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		switch($type) {
 			case self::TYPE_GLOBAL : return 0;
 			case self::TYPE_USERENTITY : return $_SESSION['glpiactive_entity'];
-			case self::TYPE_ITEMENTITY : return isset($values['itementity'])?$values['itementity']:false;
+			case self::TYPE_ITEMENTITY : return isset($values[self::TYPE_ITEMENTITY])?$values[self::TYPE_ITEMENTITY]:false;
 			case self::TYPE_PROFILE : return $_SESSION['glpiactiveprofile']['id'];
 			case self::TYPE_USER : return Session::getLoginUserID();
 			default : return false;
@@ -235,6 +235,9 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 			for($i = 0, $current = self::INHERIT_VALUE ; $current == self::INHERIT_VALUE ; $i ++) {
 				if(isset($configTable[$desc['types'][$i]])) {
 					$current = $configTable[$desc['types'][$i]][$param];
+				} else if(!isset($desc['types'][$i+1])) {
+					// cas où on n'a pas trouvé de valeur, mais où on est au dernier niveau
+					$current = $desc['default'];
 				}
 			}
 			
@@ -307,7 +310,7 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		
 		echo '<table class="tab_cadre_fixe">';
 		echo '<tr><th colspan="2" class="center b">';
-		echo static::getConfigPageTitle($this->fields['config__type'], static::getName());
+		echo static::getConfigPageTitle($this->fields['config__type']);
 		echo '</th></tr>';
 		
 		foreach(self::getConfigParams() as $param => $desc) {
@@ -424,15 +427,15 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		//CHANGE WHEN ADD CONFIG_TYPE
 		switch($type) {
 			//TRANS: %s is the plugin name
-			case self::TYPE_GLOBAL : return sprintf(__('Global configuration for plugin %s', 'configmanager'), $pluginName);
+			case self::TYPE_GLOBAL : return sprintf(__('Global configuration for plugin %s', 'configmanager'), static::getName());
 			//TRANS: %s is the plugin name
-			case self::TYPE_USERENTITY : return sprintf(__('User entity configuration for plugin %s', 'configmanager'), $pluginName);
+			case self::TYPE_USERENTITY : return sprintf(__('User entity configuration for plugin %s', 'configmanager'), static::getName());
 			//TRANS: %s is the plugin name
-			case self::TYPE_ITEMENTITY : return sprintf(__('Item entity configuration for plugin %s', 'configmanager'), $pluginName);
+			case self::TYPE_ITEMENTITY : return sprintf(__('Item entity configuration for plugin %s', 'configmanager'), static::getName());
 			//TRANS: %s is the plugin name
-			case self::TYPE_PROFILE : return sprintf(__('Profile configuration for plugin %s', 'configmanager'), $pluginName);
+			case self::TYPE_PROFILE : return sprintf(__('Profile configuration for plugin %s', 'configmanager'), static::getName());
 			//TRANS: %s is the plugin name
-			case self::TYPE_USER : return sprintf(__('User preference for plugin %s', 'configmanager'), $pluginName);
+			case self::TYPE_USER : return sprintf(__('User preference for plugin %s', 'configmanager'), static::getName());
 			default : return false;
 		}
 	}

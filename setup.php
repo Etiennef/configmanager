@@ -24,7 +24,6 @@ function plugin_configmanager_check_prerequisites()
 		echo __("Plugin has been tested only for GLPI 0.84.8", 'configmanager');
 		return false;
 	}
-	// ajouter éventuellement la présence d'autres plugins
 	
 	return true;
 }
@@ -37,7 +36,8 @@ function plugin_configmanager_check_prerequisites()
  */
 function plugin_configmanager_check_config($verbose=false)
 {
-	if (true) { //TODO faire un vrai test
+	if (true) {
+		// il n'y a aucun prérequis, le test ne peut pas échouer.
 		return true;
 	}
 	if ($verbose) {
