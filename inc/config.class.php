@@ -369,7 +369,7 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		$can_write = $this->can($this->getID(), 'w');
 		
 		if($can_write) {
-			echo '<form action="' . $this->getFormURL() . '" method="post">';
+			echo '<form action="' . PluginConfigmanagerConfig::getFormURL() . '" method="post">';
 		}
 		
 		echo '<table class="tab_cadre_fixe">';
@@ -401,6 +401,7 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 			echo '<tr class="tab_bg_1">';
 			echo '<td class="center" colspan="2">';
 			echo '<input type="hidden" name="id" value="' . $this->getID() . '">';
+			echo '<input type="hidden" name="config__object_name" value="' . get_class($this) . '">';
 			echo '<input type="submit" name="update"' . _sx('button', 'Upgrade') . ' class="submit">';
 			echo '</td></tr>';
 		}

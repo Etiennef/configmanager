@@ -86,27 +86,7 @@ On remarque deux choses :
 * Les fonctions utilisent getName, donc si la personnalisation souhaitée est minimaliste, il suffit de surcharger getName.
 * Les fonctions prennent en paramètre le type de configuration. Il est donc recommandé de faire un switch/case (copier-coller de la fonction surchargée si vous êtes fainéants). Notez que la fonction n'est appellée que pour les types réellement utilisés, donc vous n'êtes pas obligés de couvrir tous les cas si votre configuration n'utilise pas tous les types.
 
-## 4- Créer le fichier form
-Tout simplement parce que c'est pas prévu d'en faire un générique (à étudier pour une version 2).
-Pas de contrainte particulière, c'est un fichier très basique de MAJ d'un objet GLPI. Il doit suivre la convention de nommage de GLPI (cad si votre objet s'appelle `PluginMonpluginConfig`, le fichier doit être `'./form/config.form.php'`).
-
-Typiquement :
-```
-<?php
-include ("../../../inc/includes.php");
-require_once('../inc/config.class.php');
-
-if(isset($_POST['update'])) {
-	$config = new PluginMonpluginConfig();
-	$config->check($_POST['id'],'w');
-	$config->update($_POST);
-	Html::back();
-} else {
-	Html::redirect($CFG_GLPI["root_doc"]."/front/config.form.php?forcetab=".urlencode('PluginMonpluginConfig$0'));
-}
-```
-
-## 5- Brancher la configuration dans les fichiers de config de votre plugin
+## 4- Brancher la configuration dans les fichiers de config de votre plugin
 A nouveau parce que c'est difficile à faire autrement qu'à la main. Ca se fait en ajoutant (en plus évidemment de ce que vous avez déjà) quelques lignes dans 4 fonctions :
 
 Dans `plugin_monplugin_install` :
@@ -123,17 +103,17 @@ PluginMonpluginConfig::uninstall();
 
 Dans `plugin_init_monplugin` (vous pouvez retirer les addtabon non pertinents dans votre cas d'utilisation):
 ```
-Plugin::registerClass('PluginMonpluginConfig', 
-		array(
-			'addtabon' => array(
-				'User',
-				'Preference',
-				'Config',
-				'Entity',
-				'Profile' 
-			) 
-		));
-$PLUGIN_HOOKS['config_page']['monplugin'] = 'front/config.form.php';
+Plugin::registerClass('PluginMonpluginConfig', array('addtabon' => array(
+		'User',
+		'Preference',
+		'Config',
+		'Entity',
+		'Profile' 
+	)));
+if((new Plugin())->isActivated('monplugin')) {
+	$PLUGIN_HOOKS['config_page']['monplugin'] = "../../front/config.form.php?forcetab=" . urlencode('PluginMonpluginConfig$0');
+}	
+
 ```
 
 Et enfin dans `plugin_monplugin_check_prerequisites` :
