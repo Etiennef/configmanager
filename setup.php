@@ -55,7 +55,6 @@ function plugin_init_configmanager()
 {
 	global $PLUGIN_HOOKS;
 	$PLUGIN_HOOKS['csrf_compliant']['configmanager'] = true;
-	Plugin::registerClass('PluginConfigmanagerConfig');
 }
 
 
