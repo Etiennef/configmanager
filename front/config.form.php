@@ -11,8 +11,14 @@ if(isset($_POST['update']) && isset($_POST['config__object_name']) &&
 		Html::back();
 	}
 	
-	$config->check($_POST['id'],'w');
-	$config->update($_POST);
+	if($_POST['id'] == -1) {
+		unset($_POST['id']);
+		$config->check(-1,'w', $_POST);
+		$config->add($_POST);
+	} else {
+		$config->check($_POST['id'],'w');
+		$config->update($_POST);
+	}
 }
 
 

@@ -21,60 +21,23 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	/**
 	 * Description de l'ordre dans lequel l'héritage des règles se déroule
 	 * Dans l'ordre, le premier hérite du second, etc...
+	 * Doit être surchargé
 	 */
 	protected static $inherit_order = array();
 	
-	/**
-	 * Création des tables liées à cet objet. Utilisée lors de l'installation du plugin
-	 */
-	public final static function install() {
-		global $DB;
-		$table = self::getTable();
-		$request = '';
-		
-		$query = "CREATE TABLE `$table` (
-					`" . self::getIndexName() . "` int(11) NOT NULL AUTO_INCREMENT,
-					`config__type` varchar(50) collate utf8_unicode_ci NOT NULL,
-					`config__type_id` int(11) collate utf8_unicode_ci NOT NULL,
-					`config__order` int(11) collate utf8_unicode_ci NOT NULL,";
-		
-		foreach(self::getConfigParams() as $param => $desc) {
-			$query .= "`$param` " . $desc['dbtype'] . " collate utf8_unicode_ci,";
-		}
-		
-		$query .= "PRIMARY KEY  (`" . self::getIndexName() . "`)
-				) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-		
-		if(! TableExists($table)) {
-			$DB->queryOrDie($query, $DB->error());
-		}
-	}
-
-	/**
-	 * Suppression des tables liées à cet objet. Utilisé lors de la désinstallation du plugin
-	 * @return boolean
-	 */
-	public final static function uninstall() {
-		global $DB;
-		$table = self::getTable();
-		
-		if(TableExists($table)) {
-			$query = "DROP TABLE `$table`";
-			$DB->queryOrDie($query, $DB->error());
-		}
-		return true;
-	}
-	
-	/**
-	 * Regarde dans la description s'il existe des éléments de configuration pour ce type
-	 * @param string $type type de configuration
-	 * @return boolean
-	 */
 	protected final static function hasFieldsForType($type) {
 		return in_array($type, static::$inherit_order);
 	} // Note: la fonction n'est pas utilisée dans cette classe, mais elle est appellée depuis common.class
 	
-
+	/**
+	 * Création des tables liées à cet objet. Utilisée lors de l'installation du plugin
+	 * @param $additionnal_param string colonne à ajouter dans la table
+	 */
+	public final static function install($additionnal_param='') {
+		parent::install("`config__order` int(11) collate utf8_unicode_ci NOT NULL,");
+	}
+	
+	
 	
 	/**
 	 * Lit un jeu de règle pour un item de configuration donné, sans tenir compte de l'héritage.
@@ -84,14 +47,16 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	 * @return array tableau représentant le jeu de règle (brut de BDD)
 	 */
 	private final static function getFromDBStaticNoInherit($type, $type_id) {
-		if(! isset(self::$_rules_instances[$type][$type_id])) {
-			if(!isset(self::$_rules_instances[$type])) self::$_rules_instances[$type] = array();
-			self::$_rules_instances[$type][$type_id] = (new static())->find("`config__type`='$type' AND `config__type_id`='$type_id'", "config__order");
+		static $_rules_instances = array();
+		
+		if(! isset($_rules_instances[get_called_class()][$type][$type_id])) {
+			if(!isset($_rules_instances[get_called_class()])) $_rules_instances[get_called_class()] = array();
+			if(!isset($_rules_instances[get_called_class()][$type])) $_rules_instances[get_called_class()][$type] = array();
+			
+			$_rules_instances[get_called_class()][$type][$type_id] = (new static())->find("`config__type`='$type' AND `config__type_id`='$type_id'", "config__order");
 		}
-		return self::$_rules_instances[$type][$type_id];
+		return $_rules_instances[get_called_class()][$type][$type_id];
 	}
-	private static $_rules_instances = array();
-	
 	
 	/**
 	 * Lit un jeu de règle pour un item de configuration donné, en tenant compte de l'héritage (mais seulement à partir du type donné en argument).
@@ -137,13 +102,25 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	 * @return array tableau représentant le jeu de règle (brut de BDD)
 	 */
 	public final static function getRulesValues($values=array()) {
-		$type = self::$inherit_order[0];
+		$type = static::$inherit_order[0];
 		$type_id = self::getTypeIdForCurrentConfig($type, $values);
-		return self::getFromDBStatic($type, $type_id, $values);
+		$res = self::getFromDBStatic($type, $type_id, $values);
+		
+		foreach(self::getConfigParams() as $param => $desc) {
+			foreach($res as $i=>$rule) {
+				if(self::isMultipleParam($param)) {
+					$res[$i][$param] = importArrayFromDB($rule[$param]);
+				}
+			}
+		}
+		
+		return $res;
 	}
 	
 	
 
+	
+	
 	/**
 	 * Vérifie que l'utilisateur a les droits de faire l'ensemble d'action décrits dans $input
 	 * Agit comme une série de CommonDBTM::check en faisant varier l'objet sur lequel elle s'applique et le droit demandé
@@ -198,9 +175,9 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	/**
 	 * Gère la transformation des inputs multiples en quelque chose d'inserable dans la base (en l'occurence une chaine json).
 	 * .
-	 * @see CommonDBTM::prepareInputForUpdate()
+	 * @see CommonDBTM::prepareInputForAdd()
 	 */
-	final function prepareInputForUpdate($input) {
+	final function prepareInputForAdd($input) {
 		foreach(self::getConfigParams() as $param => $desc) {
 			if(isset($input[$param]) && self::isMultipleParam($param)) {
 				$input[$param] = exportArrayToDB($input[$param]);
@@ -211,32 +188,55 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	
 	
 	
-	static protected final function showForm($type, $type_id) {
-		if(! self::canItemStatic($type, $type_id, 'r')) {
-			return false;
-		}
-		$can_write = self::canItemStatic($type, $type_id, 'w');
-		
-		$form_id = 'configmanager_rules_form_'.mt_rand();
-		if($can_write) {
-			echo '<form id="'.$form_id.'" action="' . PluginConfigmanagerRule::getFormURL() . '" method="post">';
-		}
-		
-		$empty_rule = array(
+	/**
+	 * Calcule la valeur des paramètres par défaut pour un item de configuration (hérite pour ce qui hérite, valeur par défaut pour ce qui n'hérite pas).
+	 * @param string $type type de configuration
+	 * @param number $type_id id de l'objet correspondant (sera écrasé à 0 si $type = TYPE_GLOBAL)
+	 */
+	private static final function makeEmptyRule($type, $type_id) {
+		if($type == self::TYPE_GLOBAL) $type_id = 0;
+	
+		$input = array(
 			'id' => self::NEW_ID_TAG,
 			'config__type' => $type,
 			'config__type_id' => $type_id,
 			'config__order' => self::NEW_ORDER_TAG
 		);
+		
 		foreach(self::getConfigParams() as $param => $desc) {
-			$empty_rule[$param] = $desc['default'];
+			$input[$param] = $desc['default'];
+		}
+	
+		return $input;
+	}
+	
+	static protected final function showFormStatic($type, $type_id) {
+		if(! self::canItemStatic($type, $type_id, 'r')) {
+			return false;
+		}
+		$can_write = self::canItemStatic($type, $type_id, 'w');
+		
+
+		// lecture des données à afficher
+		$current_rules = self::getFromDBStatic($type, $type_id);
+
+		//Préparation de données 'vides' pour une création
+		$empty_rule = self::makeEmptyRule($type, $type_id);
+		$empty_rule_html = self::makeRuleTablerow($empty_rule, true);
+		//Préparation des données pour la suppression d'une règle
+		$delete_rule_html = '<input type="hidden" name="delete_rules[]" value="'.self::NEW_ID_TAG.'">';
+		
+		
+		// Entêtes du formulaire
+		if($can_write) {
+			$form_id = 'configmanager_rules_form_'.mt_rand();
+			echo '<form id="'.$form_id.'" action="' . PluginConfigmanagerRule::getFormURL() . '" method="post">';
 		}
 		
-		$current_rules = self::getFromDBStatic($type, $type_id);
-		
-		$delete_input = '<input type="hidden" name="delete_rules[]" value="'.self::NEW_ID_TAG.'">';
-				
 		echo '<table class="tab_cadre_fixe">';
+		echo '<tr><th colspan="'.(count(self::getConfigParams())+1).'" class="center b">';
+		echo static::getConfigPageTitle($type);
+		echo '</th></tr>';
 		
 		// Ligne de titres
 		echo '<tr class="headerRow">';
@@ -249,14 +249,13 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		// Affichage des règles
 		$table_id = 'configmanager_rules_tbody_'.mt_rand();
 		echo '<tbody id="'.$table_id.'">';
-		if($current_rules) {
-			foreach($current_rules as $rule) {
-				$can_write2 = $can_write && $rule['config__type']==$type && $rule['config__type_id']==$type_id;
-				echo self::makeRuleTablerow($rule, $can_write2);
-			}
+		foreach($current_rules as $rule) {
+			$can_write2 = $can_write && $rule['config__type']==$type && $rule['config__type_id']==$type_id;
+			echo self::makeRuleTablerow($rule, $can_write2);
 		}
 		echo '</tbody>';
 		
+		// Affichage du 'bas de formulaire' (champs cachés et boutons)
 		if($can_write) {
 			echo '<tr>';
 			echo '<td class="center"><a class="pointer" onclick="configmanager.addlast()"><img src="/pics/menu_add.png" title=""></a></td>';
@@ -279,7 +278,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	 */
 	private static final function makeRuleTablerow($rule, $can_write) {
 		$output = '';
-		$output .= '<tr id="configmanager_rule_'.$rule['id'].'"'.($can_write?'':' class="tab_bg_1"').'>';
+		$output .= '<tr id="configmanager_rule_'.$rule['id'].'">';
 		foreach(self::getConfigParams() as $param => $desc) {
 			$output .= '<td>';
 			if(is_array($desc['values'])) {
@@ -311,8 +310,6 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		
 		return $output;
 	}
-	
-	
 	
 	/**
 	 * Construit le code HTML pour un champ de saisie via dropdown
@@ -347,14 +344,6 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		return $result;
 	}
 	
-
-	/**
-	 * Fonction d'affichage d'un champs de saisie texte libre
-	 * @param unknown $param nom du paramètre à afficher
-	 * @param unknown $desc description de la configuration de ce paramètre
-	 * @param unknown $inheritText texte à afficher pour le choix 'hériter', ou '' si l'héritage est impossible pour cette option
-	 * @param unknown $can_write vrai ssi on doit afficher un input éditable, sinon on affiche juste le texte.
-	 */
 	/**
 	 * Construit le code HTML pour un champ de saisie texte libre
 	 * @param integer/string $id id de la règle dont fait partie le champ (integer ou tag de nouvel id)

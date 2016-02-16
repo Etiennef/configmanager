@@ -7,266 +7,65 @@
  * 
  * @author Etiennef
  */
-class PluginConfigmanagerConfig extends CommonDBTM {
-	const TYPE_GLOBAL = 'global';
-	const TYPE_USERENTITY = 'userentity';
-	const TYPE_ITEMENTITY = 'itementity';
-	const TYPE_PROFILE = 'profile';
-	const TYPE_USER = 'user';
-	
-	/**
-	 * Renvoie un tableau de tous les types de config possibles
-	 * @return multitype:string
-	 */
-	private final static function getAllConfigTypes() {
-		//CHANGE WHEN ADD CONFIG_TYPE
-		return array(self::TYPE_GLOBAL, self::TYPE_USERENTITY, self::TYPE_ITEMENTITY, self::TYPE_PROFILE, self::TYPE_USER);
-	}
-	
-	
+class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	//Le fait que la variable commence par un nombre abscon est important : il faut que lorsqu'elle est comparée à un nombre avec ==, elle ne renvoit jamais vrai (ne pas mettre de nombre abscon revenant à mettre 0)
 	const INHERIT_VALUE = '965482.5125475__inherit__';
-	
-	
-	
-	private static $configparams_instance = NULL;
-	
-	/**
-	 * Renvoie le tableau représentant la description de la configuration (la méta-configuration, quelque part)
-	 */
-	private final static function getConfigParams() {
-		if(! isset(self::$configparams_instance)) {
-			self::$configparams_instance = static::makeConfigParams();
-		}
-		return self::$configparams_instance;
-	}
-	
-	static function makeConfigParams() {
-		return array();
-	}
-	
-
-	/**
-	 * Création des tables liées à cet objet. Utilisée lors de l'installation du plugin
-	 */
-	public final static function install() {
-		global $DB;
-		$table = self::getTable();
-		$request = '';
-		
-		$query = "CREATE TABLE `$table` (
-					`" . self::getIndexName() . "` int(11) NOT NULL AUTO_INCREMENT,
-					`config__type` varchar(50) collate utf8_unicode_ci NOT NULL,
-					`config__type_id` int(11) collate utf8_unicode_ci NOT NULL,";
-		
-		foreach(self::getConfigParams() as $param => $desc) {
-			$query .= "`$param` " . $desc['dbtype'] . " collate utf8_unicode_ci,";
-		}
-		
-		$query .= "PRIMARY KEY  (`" . self::getIndexName() . "`)
-				) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-		
-		if(! TableExists($table)) {
-			$DB->queryOrDie($query, $DB->error());
-		}
-	}
-
-	/**
-	 * Suppression des tables liées à cet objet. Utilisé lors de la désinstallation du plugin
-	 * @return boolean
-	 */
-	public final static function uninstall() {
-		global $DB;
-		$table = self::getTable();
-		
-		if(TableExists($table)) {
-			$query = "DROP TABLE `$table`";
-			$DB->queryOrDie($query, $DB->error());
-		}
-		return true;
-	}
 	
 	/**
 	 * Regarde dans la description s'il existe des éléments de configuration pour ce type
 	 * @param string $type type de configuration
 	 * @return boolean
 	 */
-	private final static function hasFieldsForType($type) {
+	protected final static function hasFieldsForType($type) {
 		foreach(self::getConfigParams() as $param => $desc) {
 			if(in_array($type, $desc['types'])) return true;
 		}
 		return false;
 	}
 
+	
+	
+	
+	
 	/**
-	 * Renvoie les types de configurations correspondant à un type d'objet de GLPI
-	 * @param string $glpiobjecttype le type de l'objet GLPI (classiquement obtenu via CommonGLPI::getType())
-	 * @return array:string tableau des types de configurations possibles
-	 */
-	private final static function getTypeForGLPIObject($glpiobjecttype) {
-		//CHANGE WHEN ADD GLPI_TYPE
-		switch($glpiobjecttype) {
-			case 'Config' :
-				return array(self::TYPE_GLOBAL);
-			case 'Entity' :
-				return array(self::TYPE_USERENTITY, self::TYPE_ITEMENTITY);
-			case 'Profile' :
-				return array(self::TYPE_PROFILE);
-			case 'User' :
-				return array(self::TYPE_USER);
-			case 'Preference' :
-				return array(self::TYPE_USER);
-			default :
-				return '';
-		}
-	}
-
-	/**
-	 * Crée une entrée par défaut dans la base de donnée (hérite pour ce qui hérite, valeur par défaut pour ce qui n'hérite pas) pour un type&id de configuration.
+	 * Lit la configuration pour un item de configuration donné, sans tenir compte de l'héritage.
+	 * Fonctionne avec un jeu de singletons pour éviter les appels à la base inutiles.
 	 * @param string $type type de configuration
-	 * @param number $type_id id de l'objet correspondant (sera écrasé à 0 si $type = TYPE_GLOBAL)
+	 * @param integer $type_id type_id de l'item à lire
+	 * @return array tableau représentant la configuration (brut de BDD) ou false si aucune config n'est trouvée
 	 */
-	private final function createEmpty($type, $type_id) {
-		if($type == self::TYPE_GLOBAL) $type_id = 0;
+	private final static function getFromDBStaticNoInherit($type, $type_id) {
+		static $_configs_instances = array();
 		
-		$input = array();
-		foreach(self::getConfigParams() as $param => $desc) {
-			$pos = array_search($type, $desc['types']);
-			if($pos !== false && ! isset($desc['types'][$pos + 1])) {
-				$input[$param] = $desc['default'];
+		if(! isset($_configs_instances[get_called_class()][$type][$type_id])) {
+			if(!isset($_configs_instances[get_called_class()])) $_configs_instances[get_called_class()] = array();
+			if(!isset($_configs_instances[get_called_class()][$type])) $_configs_instances[get_called_class()][$type] = array();
+			
+			$config = new static();
+			if($config->getFromDBByQuery("WHERE `config__type`='$type' AND `config__type_id`='$type_id'")) {
+				$_configs_instances[get_called_class()][$type][$type_id] = $config->fields;
 			} else {
-				$input[$param] = self::INHERIT_VALUE;
+				$_configs_instances[get_called_class()][$type][$type_id] = false;
 			}
 		}
-		
-		$input['config__type'] = $type;
-		$input['config__type_id'] = $type_id;
-		$id = $this->add($input);
-		$this->getFromDB($id);
+		return $_configs_instances[get_called_class()][$type][$type_id];
 	}
 
-	static final function canView() {
-		return true;
-	}
-
-	static final function canCreate() {
-		return true;
-	}
-	
 	/**
-	 * Fonction générique pour tester les droits sur cette entrée de config. C'est juste une version générlque pour canViewItem et canCreateItem
-	 * @param string $right 'r' ou 'w' selon qu'on s'intéresse aux droits en lecture ou en écriture
-	 * @return boolean l'utilisateur courant a-t-il le droit demandé
-	 */
-	private final function canItem($right) {
-		//CHANGE WHEN ADD CONFIG_TYPE
-		if(! self::hasFieldsForType($this->fields['config__type'])) return false;
-		
-		switch($this->fields['config__type']) {
-			case self::TYPE_GLOBAL :
-				return Session::haveRight('config', $right);
-			case self::TYPE_USERENTITY :
-			case self::TYPE_ITEMENTITY :
-				return (new Entity())->can($this->fields['config__type_id'], $right);
-			case self::TYPE_PROFILE :
-				return Session::haveRight('profile', $right);
-			case self::TYPE_USER :
-				return Session::getLoginUserID() == $this->fields['config__type_id'] ||
-						 (new User())->can($this->fields['config__type_id'], $right);
-			default :
-				return false;
-		}
-	}
-	
-	final function canViewItem() {
-		return $this->canItem('r');
-	}
-
-	final function canCreateItem() {
-		return $this->canItem('w');
-	}
-	
-	/**
-	 * Gère la transformation des inputs multiples en quelque chose d'inserable dans la base (en l'occurence une chaine json).
-	 * .
-	 * @see CommonDBTM::prepareInputForUpdate()
-	 */
-	final function prepareInputForUpdate($input) {
-		foreach(self::getConfigParams() as $param => $desc) {
-			if(isset($input[$param]) && self::isMultipleParam($param)) {
-				if(in_array(self::INHERIT_VALUE, $input[$param])) {
-					if(count($input[$param]) > 1) {
-						//TRANS: %s is the description of the option
-						$msg = sprintf(__('Warning, you defined the inherit option together with one or more other options for the parameter "%s".', 'configmanager'), $desc['text']);
-						$msg .= ' ' . __('Only the inherit option will be taken into account', 'configmanager');
-						
-						Session::addMessageAfterRedirect($msg, false, ERROR);
-					}
-					$input[$param] = self::INHERIT_VALUE;
-				} else {
-					$input[$param] = exportArrayToDB($input[$param]);
-				}
-			}
-		}
-		return $input;
-	}
-
-	
-	private static $configValues_instance = array();
-	
-	/**
-	 * Réccupère l'état de la configuration courante, en tenant compte de l'utilisateur, son profil...
-	 * Fonctionne avec un singleton, afin de ne pas avoir à rechercher les informations dans la base à chaque fois.
-	 * @param array:string $values tableau indiquant la valeur des paramètres non intrinscèques. Si ignoré, les configuration de ces objets seront ignorées
-	 * 		- self::TYPE_ITEMENTITY => n° de l'entité de l'objet dont on souhaite obtenir la configuration.
-	 * @return configuration sous la forme d'un tableau ayant pour étiquettes les noms des paramètres.
+	 * Lit l'état de la configuration à appliquer, en tenant compte de l'héritage
+	 * Fonctionne avec un jeu de singletons pour éviter les appels à la base inutiles.
+	 * @param array(string) $values valeurs de type_id à utiliser pour lire les configurations héritées (devinées si non précisées)
+	 * @return array tableau représentant la configuration
 	 */
 	public final static function getConfigValues($values=array()) {
-		// $key représentant le tableau de paramètres
-		ksort($values);
-		$key = json_encode($values);
-		
-		if(! isset(self::$configValues_instance[$key])) {
-			self::$configValues_instance[$key] = self::readFromDB($values);
-		}
-		return self::$configValues_instance[$key];
-	}
-	
-	/**
-	 * Détermine le type_id de la configuration courante pour un type de configuration donné, en tenant compte de l'utilisateur, son profil...
-	 * @param string $type type de configuration
-	 * @param array:string $values tableau indiquant la valeur des paramètres non intrinscèques. Si ignoré, les configuration de ces objets seront ignorées
-	 * 		- self::TYPE_ITEMENTITY => n° de l'entité de l'objet dont on souhaite obtenir la configuration.
-	 * @return type_id à recherche en BDD
-	 */
-	private final static function getTypeIdForCurrentConfig($type, $values) {
-		//CHANGE WHEN ADD CONFIG_TYPE
-		switch($type) {
-			case self::TYPE_GLOBAL : return 0;
-			case self::TYPE_USERENTITY : return $_SESSION['glpiactive_entity'];
-			case self::TYPE_ITEMENTITY : return isset($values[self::TYPE_ITEMENTITY])?$values[self::TYPE_ITEMENTITY]:false;
-			case self::TYPE_PROFILE : return $_SESSION['glpiactiveprofile']['id'];
-			case self::TYPE_USER : return Session::getLoginUserID();
-			default : return false;
-		}
-	}
-	
-	/**
-	 * Calcule l'état de la configuration courante, en tenant compte de l'utilisateur, son profil...
-	 * Fonctionne avec un singleton, afin de ne pas avoir à rechercher les informations dans la base à chaque fois.
-	 * @param array:string $values tableau indiquant la valeur des paramètres non intrinscèques. Si ignoré, les configuration de ces objets seront ignorées
-	 * 		- self::TYPE_ITEMENTITY => n° de l'entité de l'objet dont on souhaite obtenir la configuration.
-	 * @return configuration sous la forme d'un tableau ayant pour étiquettes les noms des paramètres.
-	 */
-	private final static function readFromDB($values) {
 		$configObject = new static();
-		
+	
 		// lit dans la DB les configs susceptibles de s'appliquer
 		$configTable = array();
 		foreach(self::getAllConfigTypes() as $type) {
 			$type_id = self::getTypeIdForCurrentConfig($type, $values);
-			if($type_id!==false && $configObject->getFromDBByQuery("WHERE `config__type`='$type' AND `config__type_id`='$type_id'")) {
-				$configTable[$type] = $configObject->fields;
+			if($tmp = self::getFromDBStaticNoInherit($type, $type_id)) {
+				$configTable[$type] = $tmp;
 			}
 		}
 		
@@ -281,128 +80,128 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 					$current = $desc['default'];
 				}
 			}
-			
+				
 			if(self::isMultipleParam($param)) {
 				$config[$param] = importArrayFromDB($current);
 			} else {
 				$config[$param] = $current;
 			}
-			
-		}
-		
-		return $config;
-	}
-
-	/**
-	 * Définit les onglets à afficher pour les objets auxquels peuvent se ratacher des configurations.
-	 * En particulier, teste les différents types de configs pour savoir s'il y a lieu d'afficher un onglet pour l'objet GLPI.  
-	 * .
-	 * @see CommonGLPI::getTabNameForItem()
-	 */
-	final function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
-		if(($types = self::getTypeForGLPIObject($item->getType())) === '') {
-			return '';
+				
 		}
 	
-		$res = array();
-		foreach ($types as $type) {
-			if(self::hasFieldsForType($type)) {
-				$res[] = static::getTabNameForConfigType($type);
+		return $config;
+	}
+	
+
+	
+	
+	/**
+	 * Gère la transformation des inputs multiples en quelque chose d'inserable dans la base (en l'occurence une chaine json).
+	 * .
+	 * @see CommonDBTM::prepareInputForAdd()
+	 */
+	final function prepareInputForAdd($input) {
+		foreach(self::getConfigParams() as $param => $desc) {
+			if(isset($input[$param]) && self::isMultipleParam($param)) {
+				if(in_array(self::INHERIT_VALUE, $input[$param])) {
+					if(count($input[$param]) > 1) {
+						//TRANS: %s is the description of the option
+						$msg = sprintf(__('Warning, you defined the inherit option together with one or more other options for the parameter "%s".', 'configmanager'), $desc['text']);
+						$msg .= ' ' . __('Only the inherit option will be taken into account', 'configmanager');
+	
+						Session::addMessageAfterRedirect($msg, false, ERROR);
+					}
+					$input[$param] = self::INHERIT_VALUE;
+				} else {
+					$input[$param] = exportArrayToDB($input[$param]);
+				}
+			}
+		}
+		return $input;
+	}
+
+	
+	
+	
+
+	/**
+	 * Calcule la valeur des paramètres par défaut pour un item de configuration (hérite pour ce qui hérite, valeur par défaut pour ce qui n'hérite pas).
+	 * @param string $type type de configuration
+	 * @param number $type_id id de l'objet correspondant (sera écrasé à 0 si $type = TYPE_GLOBAL)
+	 */
+	private static final function makeEmptyConfig($type, $type_id) {
+		if($type == self::TYPE_GLOBAL) $type_id = 0;
+	
+		$input = array();
+		foreach(self::getConfigParams() as $param => $desc) {
+			$pos = array_search($type, $desc['types']);
+			if($pos !== false && ! isset($desc['types'][$pos + 1])) {
+				$input[$param] = $desc['default'];
+			} else {
+				$input[$param] = self::INHERIT_VALUE;
 			}
 		}
 	
-		return $res;
+		$input['config__type'] = $type;
+		$input['config__type_id'] = $type_id;
+		$input['id'] = -1;
+		return $input;
 	}
 	
-	/**
-	 * Détermine le type_id de la (des) configuration(s) rattachée à un objet GLPI
-	 * @param CommonGLPI $item l'objet auquel est rattaché la configuration
-	 * @return number type_id de la (des) configuration(s) associée
-	 */
-	private final static function getTypeIdForGLPIItem(CommonGLPI $item) {
-		//CHANGE WHEN ADD GLPI_TYPE
-		switch($item->getType()) {
-			case 'Config' : return 0;
-			case 'Entity' :
-			case 'Profile' :
-			case 'User' : return $item->getId();
-			case 'Preference' : return Session::getLoginUserID();
-			default : return false;
-		}
-	}
-	
-	/**
-	 * Détermine le nom de l'onglet pour un type de configuration donné. Par défaut, c'est le nom de l'objet de configuration donné par getName, mais peut être surchargé pour régler les noms au cas par cas.
-	 * @param string $type type de configuration
-	 * @return String: nom de l'onglet à afficher
-	 */
-	private function getTabNameForConfigType($type) {
-		return static::getName();
-	}
-	
-	/**
-	 * Fonction d'affichage du contenu de l'onglet de configuration, pour un objet GLPI, et un n° d'onglet (la combinaison des eux permet de déterminer de quel type de config il s'agit, si l'objet GLPI a deux types de config)
-	 * @param CommonGLPI $item Objet GLPI auquel sont ratachés des objets de config
-	 * @param number $tabnum n° de l'onglet (permet de savoir à quel type de config correspnd l'onglet demandé)
-	 * @param number $withtemplate inutilisé dans notre contexte
-	 * @return boolean true, sauf si une erreur est contatée (ne devrait pas se produire en principe)
-	 */
-	final static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
-		$type = self::getTypeForGLPIObject($item->getType())[$tabnum];
-		$type_id = self::getTypeIdForGLPIItem($item);
-		
-		$config = new static();
-		if(! $config->getFromDBByQuery("WHERE `config__type`='$type' AND `config__type_id`='$type_id'")) {
-			$config->createEmpty($type, $type_id);
-		}
-		return $config->showForm();
-	}
 
-	/**
-	 * Fonction d'affichage du contenu de l'onglet de configuration pour cet objet de config (qui correspond donc à un type de config et à un id d'objet GLPI définis)
-	 * @return boolean true, sauf si une erreur est contatée (ne devrait pas se produire en principe)
-	 */
-	final function showForm() {
-		if(! $this->can($this->getID(), 'r')) {
+	protected static final function showFormStatic($type, $type_id) {
+		if(! self::canItemStatic($type, $type_id, 'r')) {
 			return false;
 		}
-		$can_write = $this->can($this->getID(), 'w');
+		$can_write = self::canItemStatic($type, $type_id, 'w');
 		
+		// lecture des données à afficher
+		$config = self::getFromDBStaticNoInherit($type, $type_id);
+		
+		//Préparation de données 'vides' pour une création
+		if($config === false) {
+			$config = self::makeEmptyConfig($type, $type_id);
+		}
+		
+		
+		// Entêtes du formulaire
 		if($can_write) {
 			echo '<form action="' . PluginConfigmanagerConfig::getFormURL() . '" method="post">';
 		}
 		
 		echo '<table class="tab_cadre_fixe">';
 		echo '<tr><th colspan="2" class="center b">';
-		echo $this->getConfigPageTitle($this->fields['config__type']);
+		echo static::getConfigPageTitle($type);
 		echo '</th></tr>';
 		
+		//Affichage de la configuration
 		foreach(self::getConfigParams() as $param => $desc) {
-			$pos = array_search($this->fields['config__type'], $desc['types']);
+			$pos = array_search($type, $desc['types']);
 			
-			$inheritText = isset($desc['types'][$pos + 1])?$this->getInheritFromMessage($desc['types'][$pos+1]):'';
+			$inheritText = isset($desc['types'][$pos + 1])?static::getInheritFromMessage($desc['types'][$pos+1]):'';
 			
 			if($pos !== false) {
-				
-				echo "<tr class='tab_bg_2'>";
-				echo "<td>" . $desc['text'] . "</td><td>";
+				echo "<tr><td>" . $desc['text'] . "</td><td>";
 				
 				if(is_array($desc['values'])) {
-					self::showDropdown($param, $desc, $inheritText, $can_write);
+					self::showDropdown($param, $desc, $config[$param], $can_write, $inheritText);
 				} else {
-					self::showTextInput($param, $desc, $inheritText, $can_write);
+					self::showTextInput($param, $desc, $config[$param], $can_write, $inheritText);
 				}
 				
 				echo "</td></tr>";
 			}
 		}
-		
+
+		// Affichage du 'bas de formulaire' (champs cachés et bouton)
 		if($can_write) {
-			echo '<tr class="tab_bg_1">';
+			echo '<tr>';
 			echo '<td class="center" colspan="2">';
-			echo '<input type="hidden" name="id" value="' . $this->getID() . '">';
-			echo '<input type="hidden" name="config__object_name" value="' . get_class($this) . '">';
-			echo '<input type="submit" name="update"' . _sx('button', 'Upgrade') . ' class="submit">';
+			echo '<input type="hidden" name="id" value="' . $config[self::getIndexName()] . '">';
+			echo '<input type="hidden" name="config__type" value="' . $config['config__type'] . '">';
+			echo '<input type="hidden" name="config__type_id" value="' . $config['config__type_id'] . '">';
+			echo '<input type="hidden" name="config__object_name" value="' . get_called_class() . '">';
+			echo '<input type="submit" name="update" value="' . _sx('button', 'Save') . '" class="submit">';
 			echo '</td></tr>';
 		}
 		echo '</table>';
@@ -417,18 +216,18 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	 * @param unknown $inheritText texte à afficher pour le choix 'hériter', ou '' si l'héritage est impossible pour cette option
 	 * @param unknown $can_write vrai ssi on doit afficher un menu sélectionnable, sinon on affiche juste le texte.
 	 */
-	private final function showDropdown($param, $desc, $inheritText, $can_write) {
-		$doesinherit = $this->fields[$param] === self::INHERIT_VALUE;
+	private static final function showDropdown($param, $desc, $value, $can_write, $inheritText) {
+		$doesinherit = $value === self::INHERIT_VALUE;
 		
 		$options = isset($desc['options']) ? $desc['options'] : array();
 		
 		$choices = $desc['values'];
 		if($inheritText) $choices[self::INHERIT_VALUE] = $inheritText;
 		
-		if($this->fields[$param] != self::INHERIT_VALUE && self::isMultipleParam($param)) {
-			$options['values'] = importArrayFromDB($this->fields[$param]);
+		if($value != self::INHERIT_VALUE && self::isMultipleParam($param)) {
+			$options['values'] = importArrayFromDB($value);
 		} else {
-			$options['values'] = array($this->fields[$param]);
+			$options['values'] = array($value);
 		}
 		
 		if($can_write) {
@@ -437,9 +236,9 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 			if($doesinherit) {
 				echo $inheritText;
 			} else {
-				foreach($options['values'] as $value) {
-					if(isset($choices[$value])) { //test certes contreintuitif, mais nécessaire pour gérer le fait que la liste de choix puisse être variable selon les droits de l'utilisateur.
-						echo $choices[$value] . '</br>';
+				foreach($options['values'] as $val) {
+					if(isset($choices[$val])) { //test certes contreintuitif, mais nécessaire pour gérer le fait que la liste de choix puisse être variable selon les droits de l'utilisateur.
+						echo $choices[$val] . '</br>';
 					}
 				}
 			}
@@ -454,10 +253,9 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 	 * @param unknown $inheritText texte à afficher pour le choix 'hériter', ou '' si l'héritage est impossible pour cette option
 	 * @param unknown $can_write vrai ssi on doit afficher un input éditable, sinon on affiche juste le texte.
 	 */
-	private final function showTextInput($param, $desc, $inheritText, $can_write) {
+	private final static function showTextInput($param, $desc, $value, $can_write, $inheritText) {
 		$size = isset($desc['options']['size']) ? $desc['options']['size'] : 50;
 		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 250;
-		$value = $this->fields[$param];
 		$doesinherit = $value === self::INHERIT_VALUE;
 		
 		if($can_write) {
@@ -495,56 +293,6 @@ class PluginConfigmanagerConfig extends CommonDBTM {
 		}
 	}
 	
-	/**
-	 * Détermine si un paramtère correspond à un choix multiple
-	 * @param string $param nom du paramètre
-	 * @return boolean
-	 */	
-	private final static function isMultipleParam($param) {
-		$desc = self::getConfigParams()[$param];
-		return isset($desc['options']['multiple']) && $desc['options']['multiple'];
-	}
-	
-	/**
-	 * Renvoie le titre à afficher dans la page de configuration, pour un type de configuration donné.
-	 * Peut être surchargée pour personnaliser l'affichage.
-	 * @param unknown $type type de configuration
-	 * @return string titre à afficher
-	 */
-	private function getConfigPageTitle($type) {
-		//CHANGE WHEN ADD CONFIG_TYPE
-		switch($type) {
-			//TRANS: %s is the plugin name
-			case self::TYPE_GLOBAL : return sprintf(__('Global configuration for plugin %s', 'configmanager'), $this->getName());
-			//TRANS: %s is the plugin name
-			case self::TYPE_USERENTITY : return sprintf(__('User entity configuration for plugin %s', 'configmanager'), $this->getName());
-			//TRANS: %s is the plugin name
-			case self::TYPE_ITEMENTITY : return sprintf(__('Item entity configuration for plugin %s', 'configmanager'), $this->getName());
-			//TRANS: %s is the plugin name
-			case self::TYPE_PROFILE : return sprintf(__('Profile configuration for plugin %s', 'configmanager'), $this->getName());
-			//TRANS: %s is the plugin name
-			case self::TYPE_USER : return sprintf(__('User preference for plugin %s', 'configmanager'), $this->getName());
-			default : return false;
-		}
-	}
-	
-	/**
-	 * Renvoie le message à afficher dans les choix pour l'option 'hériter'.
-	 * Peut être surchargée pour personnaliser l'affichage.
-	 * @param string $type le type de configuration dont on hérite
-	 * @return string le texte à afficher dans les options du paramètre.
-	 */
-	private function getInheritFromMessage($type) {
-		//CHANGE WHEN ADD CONFIG_TYPE
-		switch($type) {
-			case self::TYPE_GLOBAL : return __('Inherit from global configuration', 'configmanager');
-			case self::TYPE_USERENTITY : return __('Inherit from user entity configuration', 'configmanager');
-			case self::TYPE_ITEMENTITY : return __('Inherit from item entity configuration', 'configmanager');
-			case self::TYPE_PROFILE : return __('Inherit from profile configuration', 'configmanager');
-			case self::TYPE_USER : return __('Inherit from user preference', 'configmanager');
-			default : return false;
-		}
-	}
 	
 }
 ?>

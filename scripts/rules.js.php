@@ -150,7 +150,7 @@ Ext.onReady(function() {
 	function add(id) {
 		var current = rules[id];
 
-		var template = '<?php echo preg_replace("/'/", "\\'", self::makeRuleTablerow($empty_rule, true));?>';
+		var template = '<?php echo addslashes($empty_rule_html);?>';
 
 		var newOrder = current.order<0?current.order:current.order+1;
 		var newID = '<?php echo self::NEW_ID_TAG;?>'+addcnt++;
@@ -197,7 +197,7 @@ Ext.onReady(function() {
 		if(newOrder === null) newOrder = 1;
 		
 		// Adaptation du modèle de ligne à notre cas particulier
-		var template = '<?php echo preg_replace("/'/", "\\'", self::makeRuleTablerow($empty_rule, true, false));?>';
+		var template = '<?php echo addslashes($empty_rule_html);?>';
 		template = template.replace(/<?php echo self::NEW_ID_TAG;?>/g, newID);
 		template = template.replace(/<?php echo self::NEW_ORDER_TAG;?>/g, newOrder);
 
@@ -222,7 +222,7 @@ Ext.onReady(function() {
 
 		// Ajout de l'input signalant la suppression d'une règle (seulement si règle existante côté serveur)
 		if(!/<?php echo self::NEW_ID_TAG;?>\d*/.test(id)) {
-			var template = '<?php echo $delete_input;?>';
+			var template = '<?php echo addslashes($delete_rule_html);?>';
 			template = template.replace(/<?php echo self::NEW_ID_TAG;?>/g, id);
 			var div = document.createElement('div');
 			div.innerHTML = template;
