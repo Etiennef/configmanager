@@ -18,6 +18,7 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	 */
 	protected final static function hasFieldsForType($type) {
 		foreach(self::getConfigParams() as $param => $desc) {
+			if($desc['type'] === 'readonly text') continue;
 			if(in_array($type, $desc['types'])) return true;
 		}
 		return false;
@@ -72,6 +73,8 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 		// Pour chaque paramètre, cherche la config qui s'applique en partant de celle qui écrase les autres
 		$config = array();
 		foreach(self::getConfigParams() as $param => $desc) {
+			if($desc['type'] === 'readonly text') continue;
+			
 			for($i = 0, $current = self::INHERIT_VALUE ; $current == self::INHERIT_VALUE ; $i ++) {
 				if(isset($configTable[$desc['types'][$i]])) {
 					$current = $configTable[$desc['types'][$i]][$param];
@@ -134,6 +137,8 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	
 		$input = array();
 		foreach(self::getConfigParams() as $param => $desc) {
+			if($desc['type'] === 'readonly text') continue;
+			
 			$pos = array_search($type, $desc['types']);
 			if($pos !== false && ! isset($desc['types'][$pos + 1])) {
 				$input[$param] = $desc['default'];
@@ -181,15 +186,24 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 			$inheritText = isset($desc['types'][$pos + 1])?static::getInheritFromMessage($desc['types'][$pos+1]):'';
 			
 			if($pos !== false) {
-				echo "<tr><td>" . $desc['text'] . "</td><td>";
+				$tooltip = isset($desc['tooltip'])?(' title="'.$desc['tooltip'].'"'):'';
 				
-				if(is_array($desc['values'])) {
-					self::showDropdown($param, $desc, $config[$param], $can_write, $inheritText);
-				} else {
-					self::showTextInput($param, $desc, $config[$param], $can_write, $inheritText);
+				switch($desc['type']) {
+					case 'dropdown' : 
+						echo '<tr' . $tooltip . '><td>' . $desc['text'] . '</td><td>';
+						self::showDropdown($param, $desc, $config[$param], $can_write, $inheritText);
+						echo '</td></tr>';
+						break;
+					case 'text input' :
+						echo '<tr' . $tooltip . '><td>' . $desc['text'] . '</td><td>';
+						self::showTextInput($param, $desc, $config[$param], $can_write, $inheritText);
+						echo '</td></tr>';
+						break;
+					case 'text input' :
+						echo '<tr>' . $desc['text'] . '<tr>';
+						break;
 				}
 				
-				echo "</td></tr>";
 			}
 		}
 

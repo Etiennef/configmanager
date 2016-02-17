@@ -56,6 +56,7 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 		Session::addMessageAfterRedirect(get_called_class() . "   :   ".var_export(self::getConfigParams(), true));
 		
 		foreach(self::getConfigParams() as $param => $desc) {
+			if($desc['type'] === 'readonly text') continue;
 			$query .= "`$param` " . $desc['dbtype'] . " collate utf8_unicode_ci,";
 		}
 	
@@ -260,12 +261,21 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 	
 
 
+	
+	/**
+	 * Détermine le nom à afficher pour désigner la configuration/les règles. Par défaut, c'est le nom de l'objet de configuration, mais peut être surchargé pour régler les noms au cas par cas.
+	 * @return String: nom à afficher
+	 */
+	protected static function getPluginName() {
+		return get_called_class();
+	}
+	
 	/**
 	 * Détermine le nom de l'onglet pour un type de configuration donné. Par défaut, c'est le nom de l'objet de configuration donné par getName, mais peut être surchargé pour régler les noms au cas par cas.
 	 * @param string $type type de configuration
 	 * @return String: nom de l'onglet à afficher
 	 */
-	protected function getTabNameForConfigType($type) {
+	protected static function getTabNameForConfigType($type) {
 		return static::getPluginName();
 	}
 	

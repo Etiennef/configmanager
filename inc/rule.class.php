@@ -204,6 +204,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		);
 		
 		foreach(self::getConfigParams() as $param => $desc) {
+			if($desc['type'] === 'readonly text') continue;
 			$input[$param] = $desc['default'];
 		}
 	
@@ -241,7 +242,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		// Ligne de titres
 		echo '<tr class="headerRow">';
 		foreach(self::getConfigParams() as $param => $desc) {
-			echo '<th>'.$desc['text'].'</th>';
+			echo '<th title="'.(isset($desc['tooltip'])?$desc['tooltip']:'').'">'.$desc['text'].'</th>';
 		}
 		echo '<th>'.__('Actions', 'configmanager').'</th>';
 		echo '</tr>';
@@ -280,12 +281,20 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		$output = '';
 		$output .= '<tr id="configmanager_rule_'.$rule['id'].'">';
 		foreach(self::getConfigParams() as $param => $desc) {
-			$output .= '<td>';
-			if(is_array($desc['values'])) {
-				$output .= self::makeDropdown($rule['id'], $param, $desc, $rule[$param], $can_write);
-			} else if($desc['values'] === 'text input') {
-				$output .= self::makeTextInput($rule['id'], $param, $desc, $rule[$param], $can_write);
+			$output .= '<td style="vertical-align:middle">';
+			
+			switch($desc['type']) {
+				case 'dropdown' :
+					$output .= self::makeDropdown($rule['id'], $param, $desc, $rule[$param], $can_write);
+					break;
+				case 'text input' :
+					$output .= self::makeTextInput($rule['id'], $param, $desc, $rule[$param], $can_write);
+					break;
+				case 'readonly text' : 
+					$output .= $desc['text'];
+					break;
 			}
+			
 			$output .= '</td>';
 		}
 		
