@@ -53,8 +53,6 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 		
 		$query .= $additionnal_param;
 		
-		Session::addMessageAfterRedirect(get_called_class() . "   :   ".var_export(self::getConfigParams(), true));
-		
 		foreach(self::getConfigParams() as $param => $desc) {
 			if($desc['type'] === 'readonly text') continue;
 			$query .= "`$param` " . $desc['dbtype'] . " collate utf8_unicode_ci,";
@@ -62,8 +60,6 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 	
 		$query .= "PRIMARY KEY  (`" . self::getIndexName() . "`)
 				) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
-		
-		Session::addMessageAfterRedirect(get_called_class() . "   :   ".addslashes($query));
 		
 		if(! TableExists($table)) {
 			$DB->queryOrDie($query, $DB->error());
