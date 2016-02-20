@@ -47,6 +47,18 @@ array(
 			'maxlength' => 250
 		);
 	),
+	'param3' => array(
+		'type' => 'text area',
+		'text' => __('Description de la valeur 2', 'monplugin'),
+		'types' => array(self::TYPE_PROFILE, self::TYPE_GLOBAL),
+		'dbtype' => 'varchar(250)',
+		'default' => 'value1',
+		'options' => array(
+			'cols' => 50,
+			'rows' => 10,
+			'maxlength' => 250
+		);
+	),
 	'whatever' => array(
 		'type' => 'readonly text',
 		'text' => 'Blablabla, peut contenir du html, doit même, puisqu'inséré direct dans le tr, donc doit contenir du td. Peut faire plusieurs lignes, colonnes, insérer des images,...',
@@ -62,6 +74,7 @@ Explication de texte :
 *`type` décrit le type d'entrée de cette clé
 	* 'dropdown' pour un dropdown
 	* 'text input' pour un champs de saisie libre
+	* 'text area' pour un champs de saisie libre sous forme d'un textarea
 	* 'readonly text' pour un texte qui sera inséré dans le formulaire, mais ne correspond pas à une option (typiquement un intertitre, un texte explicatif...)
 * `values` (utile seulement si `type==='dropdown'`) représente les valeurs possibles du dropdown sous forme d'un tableau ('value'=>'texte à afficher comme option du dropdown')
 * `types` représente les situations dans lesquelles ce paramètre de configuration a du sens. Cela signifie que le réglage de ces options sera proposés aux endroits de l'interface utilisateur pertinents (dans un onglet dédié), et que lorsque l'on va charger la configuration courante, ce paramètre sera pris en compte pour ce type de contexte. L'ordre du tableau est important : le premier élément va surcharger le deuxième, qui va surcharger le troisième... S'ils sont définis bien sûr, sinon la configuration sera héritée du niveau de dessus. Lorsque `type==='readonly text'`, ce champs définit quand le texte sera affiché, mais dans ce cas, on n'a bien sûr plus de notion d'héritage (et du coup l'ordre importe peu). On distingue 5 types de configuration :
@@ -82,7 +95,11 @@ Explication de texte :
 		`size` (1) => hauteur de dropdown de saisie
 		`mark_unmark_all` (false) => permet d'afficher les options tout sélectionner/tout désélectionner (valable seulement si multiple est vrai)
    * si `type==='text input'`
-		`size` (50) => largeur en caractères du champs de saisie affiché
+		`size` (50) => largeur en caractères du champ de saisie affiché
+		`maxlength` (250) => taille en caractères du texte saisissable (attention à bien être compatible avec la taille de l'entrée en base de donnée!!)
+   * si `type==='text area'`
+		`cols` (50) => hauteur en lignes du champ de saisie affiché
+		`rows` (5) => largeur en caractères du champ de saisie affiché
 		`maxlength` (250) => taille en caractères du texte saisissable (attention à bien être compatible avec la taille de l'entrée en base de donnée!!)
 
 ## 3- Personnaliser l'affichage

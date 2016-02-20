@@ -292,6 +292,9 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 				case 'text input' :
 					$output .= self::makeTextInput($rule['id'], $param, $desc, $rule[$param], $can_write);
 					break;
+				case 'text area' :
+					$output .= self::makeTextArea($rule['id'], $param, $desc, $rule[$param], $can_write);
+					break;
 				case 'readonly text' : 
 					$output .= $desc['text'];
 					break;
@@ -370,7 +373,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 250;
 		
 		if($can_write) {
-			$result .= '<input type="text" name="rules['.$id.']['.$param.']" value="'.$value.'" size="'.$size.'" maxlength="'.$maxlength.'">';
+			$result .= '<input type="text" name="rules['.$id.']['.$param.']" value="'.Html::cleanInputText($value).'" size="'.$size.'" maxlength="'.$maxlength.'">';
 		} else {
 			$result .= $value;
 		}
@@ -378,7 +381,29 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		return $result;
 	}
 	
+	/**
+	 * Construit le code HTML pour un champ de saisie texte libre en textarea
+	 * @param integer/string $id id de la règle dont fait partie le champ (integer ou tag de nouvel id)
+	 * @param string $param nom du paramètre à afficher (champ name du select)
+	 * @param array $desc description du paramètre à afficher
+	 * @param string $values valeur à utiliser pour préremplir le champ (doit être html-échappée)
+	 * @param boolean $can_write vrai ssi on doit afficher un menu sélectionnable, sinon on affiche juste le texte.
+	 * @return string code html à afficher
+	 */
+	private static final function makeTextArea($id, $param, $desc, $value, $can_write) {
+		$result = '';
+		$rows = isset($desc['options']['rows']) ? $desc['options']['rows'] : 5;
+		$cols = isset($desc['options']['cols']) ? $desc['options']['cols'] : 50;
+		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 500;
 	
+		if($can_write) {
+			$result .= '<textarea name="rules['.$id.']['.$param.']" rows="'.$rows.'" cols="'.$cols.'" maxlength="'.$maxlength.'">'.Html::cleanPostForTextArea($value).'</textarea>';
+		} else {
+			$result .= nl2br($value);
+		}
+	
+		return $result;
+	}
 	
 	
 }

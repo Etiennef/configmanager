@@ -199,6 +199,11 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 						self::showTextInput($param, $desc, $config[$param], $can_write, $inheritText);
 						echo '</td></tr>';
 						break;
+					case 'text area' :
+						echo '<tr' . $tooltip . '><td>' . $desc['text'] . '</td><td>';
+						self::showTextArea($param, $desc, $config[$param], $can_write, $inheritText);
+						echo '</td></tr>';
+						break;
 					case 'text input' :
 						echo '<tr>' . $desc['text'] . '<tr>';
 						break;
@@ -281,22 +286,14 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 				$txtid = 'configmanager_text_inherit_'.$param;
 				
 				echo $inheritText . ' <input type="checkbox" id="'.$chkid.'" '. ($doesinherit ? 'checked' : '') .'><br>';
-				echo '<input type="hidden" id="'.$txtid.'_inherit" value="'.self::INHERIT_VALUE.'" name="'.$param.'" size="'.$size.'" maxlength="'.$maxlength.'" '. (!$doesinherit ? 'disabled' : '') .'>';
-				echo '<input type="text" id="'.$txtid.'_value" value="'. ($doesinherit ? '' : $value) .'" name="'.$param.'" size="'.$size.'" maxlength="'.$maxlength.'" '. ($doesinherit ? 'disabled' : '') .'>';
+				echo '<input type="hidden" id="'.$txtid.'_inherit" value="'.self::INHERIT_VALUE.'" name="'.$param.'" '. (!$doesinherit ? 'disabled' : '') .'>';
+				echo '<input type="text" id="'.$txtid.'_value" value="'. ($doesinherit ? '' : Html::cleanInputText($value)) .'" name="'.$param.'" size="'.$size.'" maxlength="'.$maxlength.'" '. ($doesinherit ? 'disabled' : '') .'>';
 				
 				// Ajout du script permettant de basculer l'activation des champs de saisie
-				echo "<script>
-					Ext.get($chkid).addListener('change',function(ev, el){
-						var todisable = el.checked ? '{$txtid}_value' : '{$txtid}_inherit';
-						var toenable = el.checked ? '{$txtid}_inherit' : '{$txtid}_value';
-						
-						Ext.get(todisable).set({'disabled' : ''});
-						Ext.get(toenable).set({'disabled' : null}, false);
-					});
-				</script>";
+				self::showCheckboxJs($chkid, $txtid);
 				
 			} else {
-				echo '<input type="text" name="'.$param.'" value="'.$value.'" size="'.$size.'" maxlength="'.$maxlength.'">';
+				echo '<input type="text" name="'.$param.'" value="'.Html::cleanInputText($value).'" size="'.$size.'" maxlength="'.$maxlength.'">';
 			}
 		} else {
 			if($doesinherit) {
@@ -307,7 +304,62 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 		}
 	}
 	
+	/**
+	 * Fonction d'affichage d'un champs de saisie texte libre en textarea
+	 * @param string $param nom du paramètre à afficher
+	 * @param array $desc description de la configuration de ce paramètre
+	 * @param string $inheritText texte à afficher pour le choix 'hériter', ou '' si l'héritage est impossible pour cette option
+	 * @param boolean $can_write vrai ssi on doit afficher un input éditable, sinon on affiche juste le texte.
+	 */
+	private final static function showTextArea($param, $desc, $value, $can_write, $inheritText) {
+		$rows = isset($desc['options']['rows']) ? $desc['options']['rows'] : 5;
+		$cols = isset($desc['options']['cols']) ? $desc['options']['cols'] : 50;
+		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 500;
+		$doesinherit = $value === self::INHERIT_VALUE;
 	
+		if($can_write) {
+			if($inheritText !== '') {
+				// L'héritage est géré en mettant 2 champs, un caché, l'autre affiché, et en désactivant celui qui n'est pas pertinent.
+				// Un checkbox permet de choisir entre les deux
+	
+				$chkid = 'configmanager_checkbox_inherit_'.$param.mt_rand();
+				$txtid = 'configmanager_text_inherit_'.$param.mt_rand();
+	
+				echo $inheritText . ' <input type="checkbox" id="'.$chkid.'" '. ($doesinherit ? 'checked' : '') .'><br>';
+				echo '<input type="hidden" id="'.$txtid.'_inherit" value="'.self::INHERIT_VALUE.'" name="'.$param.'" '. (!$doesinherit ? 'disabled' : '') .'>';
+				echo '<textarea id="'.$txtid.'_value" name="'.$param.'" rows="'.$rows.'" cols="'.$cols.'" maxlength="'.$maxlength.'" '.($doesinherit ? 'disabled' : '').'>' . ($doesinherit ? '' : Html::cleanPostForTextArea($value)) . '</textarea>';
+	
+				// Ajout du script permettant de basculer l'activation des champs de saisie
+				self::showCheckboxJs($chkid, $txtid);
+	
+			} else {
+				echo '<textarea name="'.$param.'" rows="'.$rows.'" cols="'.$cols.'" maxlength="'.$maxlength.'">' . Html::cleanPostForTextArea($value) . '</textarea>';
+			}
+		} else {
+			if($doesinherit) {
+				echo $inheritText;
+			} else {
+				echo nl2br($value);
+			}
+		}
+	}
+	
+	/**
+	 * Code javascript gérant la bascule entre la valeur de texte courante et un héritage de la valeur
+	 * @param string $chkid id de la checkbox indiquant si c'est hérité
+	 * @param string $txtid racine de l'id des deux inputs entre lequels basucler
+	 */
+	private final static function showCheckboxJs($chkid, $txtid) {
+		echo "<script>
+			Ext.get($chkid).addListener('change',function(ev, el){
+			var todisable = el.checked ? '{$txtid}_value' : '{$txtid}_inherit';
+			var toenable = el.checked ? '{$txtid}_inherit' : '{$txtid}_value';
+			
+			Ext.get(todisable).set({'disabled' : ''});
+			Ext.get(toenable).set({'disabled' : null}, false);
+			});
+			</script>";
+	}
 }
 ?>
 
