@@ -195,6 +195,7 @@ Ext.onReady(function() {
 			if(newOrder === null || newOrder<rule.order) newOrder = rule.order;
 		});
 		if(newOrder === null) newOrder = 1;
+		else newOrder++;
 		
 		// Adaptation du modèle de ligne à notre cas particulier
 		var template = '<?php echo addslashes($empty_rule_html);?>';

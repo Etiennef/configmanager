@@ -251,7 +251,7 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 				echo $inheritText;
 			} else {
 				foreach($options['values'] as $val) {
-					if(isset($choices[$val])) { //test certes contreintuitif, mais nécessaire pour gérer le fait que la liste de choix puisse être variable selon les droits de l'utilisateur.
+					if(isset($choices[$val])) { //test certes contre-intuitif, mais nécessaire pour gérer le fait que la liste de choix puisse être variable selon les droits de l'utilisateur.
 						echo $choices[$val] . '</br>';
 					}
 				}
@@ -262,10 +262,10 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 
 	/**
 	 * Fonction d'affichage d'un champs de saisie texte libre
-	 * @param unknown $param nom du paramètre à afficher
-	 * @param unknown $desc description de la configuration de ce paramètre
-	 * @param unknown $inheritText texte à afficher pour le choix 'hériter', ou '' si l'héritage est impossible pour cette option
-	 * @param unknown $can_write vrai ssi on doit afficher un input éditable, sinon on affiche juste le texte.
+	 * @param string $param nom du paramètre à afficher
+	 * @param array $desc description de la configuration de ce paramètre
+	 * @param string $inheritText texte à afficher pour le choix 'hériter', ou '' si l'héritage est impossible pour cette option
+	 * @param boolean $can_write vrai ssi on doit afficher un input éditable, sinon on affiche juste le texte.
 	 */
 	private final static function showTextInput($param, $desc, $value, $can_write, $inheritText) {
 		$size = isset($desc['options']['size']) ? $desc['options']['size'] : 50;

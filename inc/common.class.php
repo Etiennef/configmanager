@@ -259,11 +259,14 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 
 	
 	/**
-	 * Détermine le nom à afficher pour désigner la configuration/les règles. Par défaut, c'est le nom de l'objet de configuration, mais peut être surchargé pour régler les noms au cas par cas.
+	 * Détermine le nom à afficher pour désigner la configuration/les règles. Par défaut, c'est le nom du plugin, mais peut être surchargé pour régler les noms au cas par cas.
 	 * @return String: nom à afficher
 	 */
 	protected static function getPluginName() {
-		return get_called_class();
+		$matches = array();
+		if(preg_match('/Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+/', get_called_class(), $matches)) {
+			return $matches[1];
+		} else return get_called_class();
 	}
 	
 	/**

@@ -86,7 +86,9 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		foreach($rules as $id => $rule) {
 			if($rule['config__order']>0 && $beforezero) {
 				$beforezero = false;
-				$result = array_merge($result, $inherited_rules);
+				foreach($inherited_rules as $id2=>$rule2) {
+					$result[$id2] = $rule2;
+			}
 			}
 			$result[$id] = $rule;
 		}
