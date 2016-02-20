@@ -88,7 +88,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 				$beforezero = false;
 				foreach($inherited_rules as $id2=>$rule2) {
 					$result[$id2] = $rule2;
-			}
+				}
 			}
 			$result[$id] = $rule;
 		}
@@ -219,20 +219,22 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		}
 		$can_write = self::canItemStatic($type, $type_id, 'w');
 		
-
 		// lecture des données à afficher
 		$current_rules = self::getFromDBStatic($type, $type_id);
 
+		// racine de tous les identifiants du formulaire (doit être unique même dans le cas où plusieurs jeux de règles sont rassemblés sur la même page)
+		$rootid = 'configmanager'.mt_rand();
+		
+		
 		//Préparation de données 'vides' pour une création
 		$empty_rule = self::makeEmptyRule($type, $type_id);
-		$empty_rule_html = self::makeRuleTablerow($empty_rule, true);
+		$empty_rule_html = self::makeRuleTablerow($empty_rule, $rootid, true);
 		//Préparation des données pour la suppression d'une règle
 		$delete_rule_html = '<input type="hidden" name="delete_rules[]" value="'.self::NEW_ID_TAG.'">';
 		
-		
 		// Entêtes du formulaire
 		if($can_write) {
-			$form_id = 'configmanager_rules_form_'.mt_rand();
+			$form_id = $rootid.'_form';
 			echo '<form id="'.$form_id.'" action="' . PluginConfigmanagerRule::getFormURL() . '" method="post">';
 		}
 		
@@ -249,19 +251,37 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		echo '<th>'.__('Actions', 'configmanager').'</th>';
 		echo '</tr>';
 		
-		// Affichage des règles
-		$table_id = 'configmanager_rules_tbody_'.mt_rand();
+		/* Affichage des règles
+		 * $beforezero est un marqueur servant à suivre si on doit encore afficher les règles héritées. On l'initialise à vrai ssi il est possible qu'il y ait des règles à hériter, puis si on s'apperçoit qu'on est en train d'afficher des règles d'ordre >0 alors qu'on doit encore afficher les règles héritées, ça veut dire qu'il n'y en a pas. On glisse donc le message indiquant que les règles seraient là. Idem à la fin, pour le cas où toutes les règles ont un order<0
+		 */
+		$table_id = $rootid.'_tbody';
 		echo '<tbody id="'.$table_id.'">';
+		
+		$beforezero = isset(static::$inherit_order[array_search($type, static::$inherit_order) + 1]);
 		foreach($current_rules as $rule) {
 			$can_write2 = $can_write && $rule['config__type']==$type && $rule['config__type_id']==$type_id;
-			echo self::makeRuleTablerow($rule, $can_write2);
+			
+			if($rule['config__order']>0 && $beforezero) {
+				// afficher une ligne bidon pour indiquer l'emplacement des règles héritées s'il n'y a rien d'hérité
+				$beforezero = false;
+				echo self::makeFakeInheritRow();
+			} else if($rule['config__type']!=$type) {
+				$beforezero = false;
+			}
+				
+			echo self::makeRuleTablerow($rule, $rootid, $can_write2);
 		}
+		
+		if($beforezero) {
+			echo self::makeFakeInheritRow();
+		}
+		
 		echo '</tbody>';
 		
 		// Affichage du 'bas de formulaire' (champs cachés et boutons)
 		if($can_write) {
 			echo '<tr>';
-			echo '<td class="center"><a class="pointer" onclick="configmanager.addlast()"><img src="/pics/menu_add.png" title=""></a></td>';
+			echo '<td class="center"><a class="pointer" onclick="'.$rootid.'.addlast()"><img src="/pics/menu_add.png" title=""></a></td>';
 			echo '<td class="center" colspan="'.(count(self::getConfigParams())).'">';
 			echo '<input type="hidden" name="config__object_name" value="' . get_called_class() . '">';
 			echo '<input type="submit" name="update" value="' . _sx('button', 'Save') . '" class="submit">';
@@ -273,15 +293,20 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		include GLPI_ROOT . "/plugins/configmanager/scripts/rules.js.php";
 	}
 	
+	private final static function makeFakeInheritRow() {
+		return '<tr><td colspan="'.(count(self::getConfigParams())+1).'" class="center b" style="background-color:rgb(140,200,140)">'.__('There are currently no rules inherited, but this is where they would be.').'</td></tr>';
+	}
+	
 	/**
 	 * Construit le code HTML pour la ligne de tableau correspondant à une règle
 	 * @param array $rule la règle à afficher
+	 * @param string $rootid racine à utiliser pour nommer les objets js et html
 	 * @param boolean $can_write indique si la règle doit être affichée en lecture seule ou éditable
 	 * @return string code html perméttant d'afficher la règle
 	 */
-	private static final function makeRuleTablerow($rule, $can_write) {
+	private static final function makeRuleTablerow($rule, $rootid, $can_write) {
 		$output = '';
-		$output .= '<tr id="configmanager_rule_'.$rule['id'].'">';
+		$output .= '<tr id="'.$rootid.'_rule_'.$rule['id'].'">';
 		foreach(self::getConfigParams() as $param => $desc) {
 			$output .= '<td style="vertical-align:middle">';
 			
@@ -311,10 +336,10 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 			
 			// TODO ajouter des infobulles
 			$output .= '<table><tr style="vertical-align:middle">';
-			$output .= '<td><a class="pointer" onclick="configmanager.moveup(\''.$rule['id'].'\')"><img src="/pics/deplier_up.png" title=""></a></td>';
-			$output .= '<td><a class="pointer" onclick="configmanager.movedown(\''.$rule['id'].'\')"><img src="/pics/deplier_down.png" title=""></a></td>';
-			$output .= '<td><a class="pointer" onclick="configmanager.add(\''.$rule['id'].'\')"><img src="/pics/menu_add.png" title=""></a></td>';
-			$output .= '<td><a class="pointer" onclick="configmanager.remove(\''.$rule['id'].'\')"><img src="/pics/reset.png" title=""></a></td>';
+			$output .= '<td><a class="pointer" onclick="'.$rootid.'.moveup(\''.$rule['id'].'\')"><img src="/pics/deplier_up.png" title=""></a></td>';
+			$output .= '<td><a class="pointer" onclick="'.$rootid.'.movedown(\''.$rule['id'].'\')"><img src="/pics/deplier_down.png" title=""></a></td>';
+			$output .= '<td><a class="pointer" onclick="'.$rootid.'.add(\''.$rule['id'].'\')"><img src="/pics/menu_add.png" title=""></a></td>';
+			$output .= '<td><a class="pointer" onclick="'.$rootid.'.remove(\''.$rule['id'].'\')"><img src="/pics/reset.png" title=""></a></td>';
 			$output .= '</table></tr>';
 		} else {
 			$output .= self::getInheritedFromMessage($rule['config__type']);

@@ -1,16 +1,18 @@
 <script>
-var configmanager = {};
+var <?php echo $rootid;?> = {};
 
 Ext.onReady(function() {
 	var tableNode = document.getElementById('<?php echo $table_id;?>');
 	var formNode = document.getElementById('<?php echo $form_id;?>');
 	var rules = {}; //id=> order, dom (ne contient pas les 0)
 
-	configmanager.moveup = moveup;
-	configmanager.movedown = movedown;
-	configmanager.add = add;
-	configmanager.addlast = addlast;
-	configmanager.remove = remove;
+	<?php echo $rootid;?> = {
+			moveup : moveup,
+			movedown : movedown,
+			add : add,
+			addlast : addlast,
+			remove : remove,
+	};
 	
 	initialize();
 
@@ -19,15 +21,16 @@ Ext.onReady(function() {
 		for (var i in rows) {
 			var row = rows[i];
 			if(row.nodeType) {
-		    	id = row.id.match(/configmanager_rule_(\d)/)[1];
+				if(!row.id.match(/<?php echo $rootid;?>_rule_(\d)/)) continue;
+		    	id = row.id.match(/<?php echo $rootid;?>_rule_(\d)/)[1];
 
-				orderDom = document.getElementsByName('rules['+id+'][config__order]');
-				// orderDom.length == 0 ssi c'est une règle héritée
-				if(orderDom.length) {
+				orderDom = row.querySelector('[name$="rules['+id+'][config__order]"]');
+				// orderDom.length == null ssi c'est une règle héritée
+				if(orderDom) {
 			        rules[id] = {
 						id : id,
 						dom : row,
-						order : parseInt(orderDom[0].value),
+						order : parseInt(orderDom.value),
 			        };
 				}
 			}
@@ -242,7 +245,7 @@ Ext.onReady(function() {
 	
 	function setOrder(rule, order) {
 		rule.order = order;
-		document.getElementsByName('rules['+rule.id+'][config__order]')[0].value = order;
+		tableNode.querySelector('[name$="rules['+rule.id+'][config__order]"]').value = order;
 	}
 	
 });
