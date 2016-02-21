@@ -1,10 +1,12 @@
 
 <?php
 class PluginConfigmanagerTabmerger extends CommonGLPI {
-	protected static $tabs = array(
-		// '__.*' => 'html code',
-		// CommonGLPI => tabnum|'all',
+	protected static function getTabsConfig() {
+		return array(
+			// '__.*' => 'html code',
+			// CommonGLPI => tabnum|'all',
 		);
+	}
 	
 	protected static function getMergedTabName() {
 		$matches = array();
@@ -14,7 +16,7 @@ class PluginConfigmanagerTabmerger extends CommonGLPI {
 	}
 	
 	function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
-		foreach(static::$tabs as $objectName => $tabnum) {
+		foreach(static::getTabsConfig() as $objectName => $tabnum) {
 			if(preg_match('/__.*/', $objectName))
 				continue;
 			if(!empty((new $objectName())->getTabNameForItem($item, $withtemplate)))
@@ -26,7 +28,7 @@ class PluginConfigmanagerTabmerger extends CommonGLPI {
 	static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
 		$res = true;
 		
-		foreach(static::$tabs as $objectName => $tabnum) {
+		foreach(static::getTabsConfig() as $objectName => $tabnum) {
 			if(preg_match('/__.*/', $objectName)) {
 				echo $tabnum;
 				continue;

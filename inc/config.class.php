@@ -314,6 +314,7 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	private final static function showTextArea($param, $desc, $value, $can_write, $inheritText) {
 		$rows = isset($desc['options']['rows']) ? $desc['options']['rows'] : 5;
 		$cols = isset($desc['options']['cols']) ? $desc['options']['cols'] : 50;
+		$resize = isset($desc['options']['resize']) ? $desc['options']['resize'] : 'both';
 		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 500;
 		$doesinherit = $value === self::INHERIT_VALUE;
 	
@@ -327,13 +328,13 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	
 				echo $inheritText . ' <input type="checkbox" id="'.$chkid.'" '. ($doesinherit ? 'checked' : '') .'><br>';
 				echo '<input type="hidden" id="'.$txtid.'_inherit" value="'.self::INHERIT_VALUE.'" name="'.$param.'" '. (!$doesinherit ? 'disabled' : '') .'>';
-				echo '<textarea id="'.$txtid.'_value" name="'.$param.'" rows="'.$rows.'" cols="'.$cols.'" maxlength="'.$maxlength.'" '.($doesinherit ? 'disabled' : '').'>' . ($doesinherit ? '' : Html::cleanPostForTextArea($value)) . '</textarea>';
+				echo '<textarea id="'.$txtid.'_value" name="'.$param.'" rows="'.$rows.'" cols="'.$cols.'" maxlength="'.$maxlength.'" '.($doesinherit ? 'disabled' : '').' style="resize:'.$resize.'">' . ($doesinherit ? '' : Html::cleanPostForTextArea($value)) . '</textarea>';
 	
 				// Ajout du script permettant de basculer l'activation des champs de saisie
 				self::showCheckboxJs($chkid, $txtid);
 	
 			} else {
-				echo '<textarea name="'.$param.'" rows="'.$rows.'" cols="'.$cols.'" maxlength="'.$maxlength.'">' . Html::cleanPostForTextArea($value) . '</textarea>';
+				echo '<textarea name="'.$param.'" rows="'.$rows.'" cols="'.$cols.'" maxlength="'.$maxlength.'" style="resize:'.$resize.'">' . Html::cleanPostForTextArea($value) . '</textarea>';
 			}
 		} else {
 			if($doesinherit) {

@@ -419,10 +419,11 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		$result = '';
 		$rows = isset($desc['options']['rows']) ? $desc['options']['rows'] : 5;
 		$cols = isset($desc['options']['cols']) ? $desc['options']['cols'] : 50;
+		$resize = isset($desc['options']['resize']) ? $desc['options']['resize'] : 'both';
 		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 500;
 	
 		if($can_write) {
-			$result .= '<textarea name="rules['.$id.']['.$param.']" rows="'.$rows.'" cols="'.$cols.'" maxlength="'.$maxlength.'">'.Html::cleanPostForTextArea($value).'</textarea>';
+			$result .= '<textarea name="rules['.$id.']['.$param.']" rows="'.$rows.'" cols="'.$cols.'" style="resize:'.$resize.'" maxlength="'.$maxlength.'">'.Html::cleanPostForTextArea($value).'</textarea>';
 		} else {
 			$result .= nl2br($value);
 		}
