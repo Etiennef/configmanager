@@ -261,7 +261,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		foreach($current_rules as $rule) {
 			$can_write2 = $can_write && $rule['config__type']==$type && $rule['config__type_id']==$type_id;
 			
-			if($rule['config__order']>0 && $beforezero) {
+			if($rule['config__order']>0 && $beforezero && $rule['config__type']==$type) {
 				// afficher une ligne bidon pour indiquer l'emplacement des règles héritées s'il n'y a rien d'hérité
 				$beforezero = false;
 				echo self::makeFakeInheritRow();
