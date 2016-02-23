@@ -84,7 +84,7 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 				}
 			}
 				
-			if(self::isMultipleParam($param)) {
+			if(isset($desc['multiple']) && $desc['multiple']) {
 				$config[$param] = importArrayFromDB($current);
 			} else {
 				$config[$param] = $current;
@@ -105,7 +105,7 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	 */
 	final function prepareInputForAdd($input) {
 		foreach(self::getConfigParams() as $param => $desc) {
-			if(isset($input[$param]) && self::isMultipleParam($param)) {
+			if(isset($input[$param]) && isset($desc['multiple']) && $desc['multiple']) {
 				if(in_array(self::INHERIT_VALUE, $input[$param])) {
 					if(count($input[$param]) > 1) {
 						//TRANS: %s is the description of the option
@@ -175,9 +175,6 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 		}
 		
 		echo '<table class="tab_cadre_fixe">';
-		echo '<tr><th colspan="2" class="center b">';
-		echo static::getConfigPageTitle($type);
-		echo '</th></tr>';
 		
 		//Affichage de la configuration
 		foreach(self::getConfigParams() as $param => $desc) {
@@ -204,8 +201,8 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 						self::showTextArea($param, $desc, $config[$param], $can_write, $inheritText);
 						echo '</td></tr>';
 						break;
-					case 'text input' :
-						echo '<tr>' . $desc['text'] . '<tr>';
+					case 'readonly text' :
+						echo '<tr' . $tooltip . '>' . $desc['text'] . '</tr>';
 						break;
 				}
 				
@@ -238,12 +235,16 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	private static final function showDropdown($param, $desc, $value, $can_write, $inheritText) {
 		$doesinherit = $value === self::INHERIT_VALUE;
 		
-		$options = isset($desc['options']) ? $desc['options'] : array();
+		$options = array(
+			'multiple' => isset($desc['multiple']) && $desc['multiple'],
+			'size' => isset($desc['size']) ? $desc['size'] : 1,
+			'mark_unmark_all' => isset($desc['mark_unmark_all']) && $desc['mark_unmark_all'],
+		);
 		
 		$choices = $desc['values'];
 		if($inheritText) $choices[self::INHERIT_VALUE] = $inheritText;
 		
-		if($value != self::INHERIT_VALUE && self::isMultipleParam($param)) {
+		if($value != self::INHERIT_VALUE && $options['multiple']) {
 			$options['values'] = importArrayFromDB($value);
 		} else {
 			$options['values'] = array($value);
@@ -273,8 +274,8 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	 * @param boolean $can_write vrai ssi on doit afficher un input éditable, sinon on affiche juste le texte.
 	 */
 	private final static function showTextInput($param, $desc, $value, $can_write, $inheritText) {
-		$size = isset($desc['options']['size']) ? $desc['options']['size'] : 50;
-		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 250;
+		$size = isset($desc['size']) ? $desc['size'] : 50;
+		$maxlength = $desc['maxlength'];
 		$doesinherit = $value === self::INHERIT_VALUE;
 		
 		if($can_write) {
@@ -312,10 +313,10 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 	 * @param boolean $can_write vrai ssi on doit afficher un input éditable, sinon on affiche juste le texte.
 	 */
 	private final static function showTextArea($param, $desc, $value, $can_write, $inheritText) {
-		$rows = isset($desc['options']['rows']) ? $desc['options']['rows'] : 5;
-		$cols = isset($desc['options']['cols']) ? $desc['options']['cols'] : 50;
-		$resize = isset($desc['options']['resize']) ? $desc['options']['resize'] : 'both';
-		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 500;
+		$rows = isset($desc['rows']) ? $desc['rows'] : 5;
+		$cols = isset($desc['cols']) ? $desc['cols'] : 50;
+		$resize = isset($desc['resize']) ? $desc['resize'] : 'both';
+		$maxlength = $desc['maxlength'];
 		$doesinherit = $value === self::INHERIT_VALUE;
 	
 		if($can_write) {
@@ -360,6 +361,10 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 			Ext.get(toenable).set({'disabled' : null}, false);
 			});
 			</script>";
+	}
+	
+	protected final static function makeHeaderLine($text) {
+		return '<th colspan="2" class="headerRow">'.$text.'</th>';
 	}
 }
 ?>

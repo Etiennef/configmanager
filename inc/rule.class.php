@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * //TODO doc plus à jour
  * Objet générique de gestion de la configuration, offrant la possibilité d'avoir plusieurs niveaux de paramétrage, avec héritage entre les niveaux et surcharge si nécessaire. Cet objet a vocation à être utilisé en définissant un objet qui en hérite, et en redéfinissant certaines fonctions.
  * Dans le modèle de données, cet objet représente une série de paramètre de configuration, pour un seul type de configuration (générale OU utilisateur...). La configuration dans un contexte donné pour un utilisateur correspond donc à un croisement (tenant compte des surcharges) de plusieurs objets PluginConfigmanagerConfig de différents types (mais au plus un seul de chaque type).
  * Chaque objet PluginConfigmanagerConfig est instancié à la volée quand on essaie d'y accéder en écriture. L'absence de l'objet est considérée comme équivalente à un héritage de l'objet du niveau de dessus, ou à la valeur par défaut s'il n'y a pas de niveau de dessus.
@@ -110,7 +111,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		
 		foreach(self::getConfigParams() as $param => $desc) {
 			foreach($res as $i=>$rule) {
-				if(self::isMultipleParam($param)) {
+				if(isset($desc['multiple']) && $desc['multiple']) {
 					$res[$i][$param] = importArrayFromDB($rule[$param]);
 				}
 			}
@@ -181,7 +182,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	 */
 	final function prepareInputForAdd($input) {
 		foreach(self::getConfigParams() as $param => $desc) {
-			if(isset($input[$param]) && self::isMultipleParam($param)) {
+			if(isset($input[$param]) && isset($desc['multiple']) && $desc['multiple']) {
 				$input[$param] = exportArrayToDB($input[$param]);
 			}
 		}
@@ -239,14 +240,18 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		}
 		
 		echo '<table class="tab_cadre_fixe">';
-		echo '<tr><th colspan="'.(count(self::getConfigParams())+1).'" class="center b">';
-		echo static::getConfigPageTitle($type);
-		echo '</th></tr>';
+		
+		if(isset(self::getConfigParams()['_header']['text'])) {
+			echo self::getConfigParams()['_header']['text'];
+		}
 		
 		// Ligne de titres
 		echo '<tr class="headerRow">';
 		foreach(self::getConfigParams() as $param => $desc) {
-			echo '<th title="'.(isset($desc['tooltip'])?$desc['tooltip']:'').'">'.$desc['text'].'</th>';
+			if($param[0] != '_') {
+				$tooltip = isset($desc['tooltip'])?' title="'.($desc['tooltip']).'"':'';
+				echo '<th'.$tooltip.'>'.$desc['text'].'</th>';
+			}
 		}
 		echo '<th>'.__('Actions', 'configmanager').'</th>';
 		echo '</tr>';
@@ -278,6 +283,10 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		
 		echo '</tbody>';
 		
+		if(isset(self::getConfigParams()['_pre_save']['text'])) {
+			echo self::getConfigParams()['_pre_save']['text'];
+		}
+		
 		// Affichage du 'bas de formulaire' (champs cachés et boutons)
 		if($can_write) {
 			echo '<tr>';
@@ -286,6 +295,10 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 			echo '<input type="hidden" name="config__object_name" value="' . get_called_class() . '">';
 			echo '<input type="submit" name="update" value="' . _sx('button', 'Save') . '" class="submit">';
 			echo '</td></tr>';
+		}
+		
+		if(isset(self::getConfigParams()['_footer']['text'])) {
+			echo self::getConfigParams()['_footer']['text'];
 		}
 		echo '</table>';
 		Html::closeForm();
@@ -308,7 +321,11 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		$output = '';
 		$output .= '<tr id="'.$rootid.'_rule_'.$rule['id'].'">';
 		foreach(self::getConfigParams() as $param => $desc) {
-			$output .= '<td style="vertical-align:middle">';
+			//ignore les paramètres spéciaux _header etc...
+			if($param[0] == '_') continue;
+			
+			$tooltip = isset($desc['tooltip'])?' title="'.($desc['tooltip']).'"':'';
+			$output .= '<td'.$tooltip.' style="vertical-align:middle">';
 			
 			switch($desc['type']) {
 				case 'dropdown' :
@@ -360,11 +377,16 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	 * @return string code html à afficher
 	 */
 	private static final function makeDropdown($id, $param, $desc, $values, $can_write) {
+		$options = array(
+			'multiple' => isset($desc['multiple']) && $desc['multiple'],
+			'size' => isset($desc['size']) ? $desc['size'] : 1,
+			'mark_unmark_all' => isset($desc['mark_unmark_all']) && $desc['mark_unmark_all'],
+		);
+		
 		$result = '';
-		$options = isset($desc['options']) ? $desc['options'] : array();
 		$options['display'] = false;
 		
-		if(isset($options['multiple']) && $options['multiple']) {
+		if($options['multiple']) {
 			$options['values'] = importArrayFromDB($values);
 		} else {
 			$options['values'] = array($values);
@@ -394,8 +416,8 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	 */
 	private static final function makeTextInput($id, $param, $desc, $value, $can_write) {
 		$result = '';
-		$size = isset($desc['options']['size']) ? $desc['options']['size'] : 50;
-		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 250;
+		$size = isset($desc['size']) ? $desc['size'] : 50;
+		$maxlength = $desc['maxlength'];
 		
 		if($can_write) {
 			$result .= '<input type="text" name="rules['.$id.']['.$param.']" value="'.Html::cleanInputText($value).'" size="'.$size.'" maxlength="'.$maxlength.'">';
@@ -417,10 +439,10 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	 */
 	private static final function makeTextArea($id, $param, $desc, $value, $can_write) {
 		$result = '';
-		$rows = isset($desc['options']['rows']) ? $desc['options']['rows'] : 5;
-		$cols = isset($desc['options']['cols']) ? $desc['options']['cols'] : 50;
-		$resize = isset($desc['options']['resize']) ? $desc['options']['resize'] : 'both';
-		$maxlength = isset($desc['options']['maxlength']) ? $desc['options']['maxlength'] : 500;
+		$rows = isset($desc['rows']) ? $desc['rows'] : 5;
+		$cols = isset($desc['cols']) ? $desc['cols'] : 50;
+		$resize = isset($desc['resize']) ? $desc['resize'] : 'both';
+		$maxlength = $desc['maxlength'];
 	
 		if($can_write) {
 			$result .= '<textarea name="rules['.$id.']['.$param.']" rows="'.$rows.'" cols="'.$cols.'" style="resize:'.$resize.'" maxlength="'.$maxlength.'">'.Html::cleanPostForTextArea($value).'</textarea>';
@@ -431,7 +453,17 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		return $result;
 	}
 	
+	protected static function getHeader() {
+		return '';
+	}
 	
+	protected static function getFooter() {
+		return '';
+	}
+	
+	protected static final function makeHeaderLine($text) {
+		return '<tr><th class="headerRow" colspan="1000">'.$text.'</th></tr>';
+	}
 }
 ?>
 

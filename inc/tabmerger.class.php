@@ -34,12 +34,14 @@ class PluginConfigmanagerTabmerger extends CommonGLPI {
 				continue;
 			}
 			
+			$tabs = (new $objectName())->getTabNameForItem($item, $withtemplate);
+			
 			if($tabnum === 'all') {
-				$tabs2 = call_user_func("$objectName::getTabNameForItem", $item, $withtemplate);
-				foreach($tabs2 as $tabnum2 => $tabname2) {
+				foreach($tabs as $tabnum2 => $tabname2) {
 					$res &= call_user_func("$objectName::displayTabContentForItem", $item, $tabnum2, $withtemplate);
 				}
-			} else {
+			} else if(isset($tabs[$tabnum])){
+				// le isset permet de vérifier que l'onglet aurait été affiché dans ce contexte par l'objet de base
 				$res &= call_user_func("$objectName::displayTabContentForItem", $item, $tabnum, $withtemplate);
 			}
 		}

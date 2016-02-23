@@ -55,7 +55,7 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 		
 		foreach(self::getConfigParams() as $param => $desc) {
 			if($desc['type'] === 'readonly text') continue;
-			$query .= "`$param` " . $desc['dbtype'] . " collate utf8_unicode_ci,";
+			$query .= "`$param` varchar(" . $desc['maxlength'] . ") collate utf8_unicode_ci,";
 		}
 	
 		$query .= "PRIMARY KEY  (`" . self::getIndexName() . "`)
@@ -93,15 +93,15 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 		//CHANGE WHEN ADD GLPI_TYPE
 		switch($glpiobjecttype) {
 			case 'Config' :
-				return array(self::TYPE_GLOBAL);
+				return array(1=>self::TYPE_GLOBAL);
 			case 'Entity' :
-				return array(self::TYPE_USERENTITY, self::TYPE_ITEMENTITY);
+				return array(2=>self::TYPE_USERENTITY, 3=>self::TYPE_ITEMENTITY);
 			case 'Profile' :
-				return array(self::TYPE_PROFILE);
+				return array(4=>self::TYPE_PROFILE);
 			case 'User' :
-				return array(self::TYPE_USER);
+				return array(5=>self::TYPE_USER);
 			case 'Preference' :
-				return array(self::TYPE_USER);
+				return array(5=>self::TYPE_USER);
 			default :
 				return '';
 		}
@@ -204,12 +204,12 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 		}
 	
 		$res = array();
-		foreach ($types as $type) {
+		foreach ($types as $tab => $type) {
 			if(static::hasFieldsForType($type)) {
-				$res[] = static::getTabNameForConfigType($type);
+				$res[$tab] = static::getTabNameForConfigType($type);
 			}
 		}
-	
+		
 		return $res;
 	}
 	
@@ -256,50 +256,16 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 	}
 	
 
-
-	
 	/**
-	 * Détermine le nom à afficher pour désigner la configuration/les règles. Par défaut, c'est le nom du plugin, mais peut être surchargé pour régler les noms au cas par cas.
-	 * @return String: nom à afficher
-	 */
-	protected static function getPluginName() {
-		$matches = array();
-		if(preg_match('/Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+/', get_called_class(), $matches)) {
-			return $matches[1];
-		} else return get_called_class();
-	}
-	
-	/**
-	 * Détermine le nom de l'onglet pour un type de configuration donné. Par défaut, c'est le nom de l'objet de configuration donné par getName, mais peut être surchargé pour régler les noms au cas par cas.
+	 * Détermine le nom de l'onglet pour un type de configuration donné. Par défaut, c'est le nom du plugin, mais peut être surchargé pour régler les noms au cas par cas.
 	 * @param string $type type de configuration
 	 * @return String: nom de l'onglet à afficher
 	 */
 	protected static function getTabNameForConfigType($type) {
-		return static::getPluginName();
-	}
-	
-	
-	/**
-	 * Renvoie le titre à afficher dans la page de configuration, pour un type de configuration donné.
-	 * Peut être surchargée pour personnaliser l'affichage.
-	 * @param unknown $type type de configuration
-	 * @return string titre à afficher
-	 */
-	protected static function getConfigPageTitle($type) {
-		//CHANGE WHEN ADD CONFIG_TYPE
-		switch($type) {
-			//TRANS: %s is the plugin name
-			case self::TYPE_GLOBAL : return sprintf(__('Global configuration for plugin %s', 'configmanager'), static::getPluginName());
-			//TRANS: %s is the plugin name
-			case self::TYPE_USERENTITY : return sprintf(__('User entity configuration for plugin %s', 'configmanager'), static::getPluginName());
-			//TRANS: %s is the plugin name
-			case self::TYPE_ITEMENTITY : return sprintf(__('Item entity configuration for plugin %s', 'configmanager'), static::getPluginName());
-			//TRANS: %s is the plugin name
-			case self::TYPE_PROFILE : return sprintf(__('Profile configuration for plugin %s', 'configmanager'), static::getPluginName());
-			//TRANS: %s is the plugin name
-			case self::TYPE_USER : return sprintf(__('User preference for plugin %s', 'configmanager'), static::getPluginName());
-			default : return false;
-		}
+		$matches = array();
+		if(preg_match('/Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+/', get_called_class(), $matches)) {
+			return $matches[1];
+		} else return get_called_class();
 	}
 	
 	/**
@@ -321,10 +287,10 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 	}
 	
 	/**
-	 * Renvoie le message à afficher dans les choix pour l'option 'hériter'.
+	 * Renvoie le message à afficher pour indiquer qu'une règle/config est héritée.
 	 * Peut être surchargée pour personnaliser l'affichage.
 	 * @param string $type le type de configuration dont on hérite
-	 * @return string le texte à afficher dans les options du paramètre.
+	 * @return string le texte à afficher
 	 */
 	protected static function getInheritedFromMessage($type) {
 		//CHANGE WHEN ADD CONFIG_TYPE
@@ -336,15 +302,5 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 			case self::TYPE_USER : return __('Inheriteds from user preference', 'configmanager');
 			default : return false;
 		}
-	}
-	
-	/**
-	 * Détermine si un paramtère correspond à un choix multiple
-	 * @param string $param nom du paramètre
-	 * @return boolean
-	 */
-	protected final static function isMultipleParam($param) {
-		$desc = self::getConfigParams()[$param];
-		return isset($desc['options']['multiple']) && $desc['options']['multiple'];
 	}
 }
