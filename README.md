@@ -1,6 +1,4 @@
-//TODO le module de règles n'est pas couvert par cette version de la doc
-
-# configmanager
+# Configmanager
 Ce plugin n'a en fait aucun intérêt en lui-même. Son objectif est de fournir une base partagée pour gérer la configuration d'autres plugins.
 Le principe est le suivant : plutôt que s'embêter à chaque fois qu'on a des configurations à gérer à faire des objets héritant de CommonDBTM et à réimplémenter une interface pour 3 dropdowns, il suffit d'hériter de la classe fournie pas ce plugin, de sur-charger deux-trois fonctions très simples pour décrire la configuration qu'on veut (un peu à la manière d'un modèle de données), et le tour est joué.
 De plus, ce plugin offre la possibilité de définir plusieurs niveau de configurations pouvant se surcharger les uns les autres (le cas d'usage typique, c'est d'avoir une configuration générale, qu'un utilisateur peut surcharger dans ses préférences).
