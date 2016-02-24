@@ -1,6 +1,11 @@
 
 <?php
 class PluginConfigmanagerTabmerger extends CommonGLPI {
+	/**
+	 * Fonction de définition de ce qui doit être rassemblé dans cet onglet. Cf doc pour le format.
+	 * Doit être surchargée
+	 * @return array 
+	 */
 	protected static function getTabsConfig() {
 		return array(
 			// '__.*' => 'html code',
@@ -8,16 +13,21 @@ class PluginConfigmanagerTabmerger extends CommonGLPI {
 		);
 	}
 	
+	/**
+	 * Fonction définissant le nom de l'onglet fusionné.
+	 * Peut être surchargé si nécessaire, par défaut c'est le nom du plugin
+	 * @return string nom de l'onglet
+	 */
 	protected static function getMergedTabName() {
 		$matches = array();
-		if(preg_match('/Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+/', get_called_class(), $matches)) {
+		if(preg_match('@Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+@', get_called_class(), $matches)) {
 			return $matches[1];
 		} else return get_called_class();
 	}
 	
-	function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
+	final function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 		foreach(static::getTabsConfig() as $objectName => $tabnum) {
-			if(preg_match('/__.*/', $objectName))
+			if(preg_match('@__.*@', $objectName))
 				continue;
 			if(!empty((new $objectName())->getTabNameForItem($item, $withtemplate)))
 				return static::getMergedTabName();
@@ -25,11 +35,11 @@ class PluginConfigmanagerTabmerger extends CommonGLPI {
 		return '';
 	}
 	
-	static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
+	static final function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
 		$res = true;
 		
 		foreach(static::getTabsConfig() as $objectName => $tabnum) {
-			if(preg_match('/__.*/', $objectName)) {
+			if(preg_match('@__.* @', $objectName)) {
 				echo $tabnum;
 				continue;
 			}

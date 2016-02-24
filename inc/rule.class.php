@@ -1,20 +1,10 @@
 <?php
 
 /**
- * //TODO doc plus à jour
- * Objet générique de gestion de la configuration, offrant la possibilité d'avoir plusieurs niveaux de paramétrage, avec héritage entre les niveaux et surcharge si nécessaire. Cet objet a vocation à être utilisé en définissant un objet qui en hérite, et en redéfinissant certaines fonctions.
- * Dans le modèle de données, cet objet représente une série de paramètre de configuration, pour un seul type de configuration (générale OU utilisateur...). La configuration dans un contexte donné pour un utilisateur correspond donc à un croisement (tenant compte des surcharges) de plusieurs objets PluginConfigmanagerConfig de différents types (mais au plus un seul de chaque type).
- * Chaque objet PluginConfigmanagerConfig est instancié à la volée quand on essaie d'y accéder en écriture. L'absence de l'objet est considérée comme équivalente à un héritage de l'objet du niveau de dessus, ou à la valeur par défaut s'il n'y a pas de niveau de dessus.
- * 
+ * Objet générique de gestion de règles, offrant la possibilité d'avoir plusieurs niveaux de paramétrage, avec héritage entre les niveaux (les règles se cumulent). Cet objet a vocation à être utilisé en définissant un objet qui en hérite, et en redéfinissant certaines fonctions.
+ * Dans le modèle de données, cet objet représente une unique règle, pour un seul type de configuration (générale OU utilisateur...). Les règles applicables dans un contexte donné pour un utilisateur correspond donc à l'union de plusieurs objets PluginConfigmanagerConfig de différents types, classé dans un ordre donné. L'application qui utilise ces règles est ensuite libre de choisir comment elle les utilise (la règle de dessus surchage l'autre, toutes s'appliquent en parallèle...).
  * @author Etiennef
  */
-
-
-/*
- * $params, les clés de $values, $size, $maxlength doivent êter htmlentities
- */
-
-
 class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	const NEW_ID_TAG = '__newid__';
 	const NEW_ORDER_TAG = '__neworder__';
@@ -30,15 +20,9 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		return in_array($type, static::$inherit_order);
 	} // Note: la fonction n'est pas utilisée dans cette classe, mais elle est appellée depuis common.class
 	
-	/**
-	 * Création des tables liées à cet objet. Utilisée lors de l'installation du plugin
-	 * @param $additionnal_param string colonne à ajouter dans la table
-	 */
 	public final static function install($additionnal_param='') {
 		parent::install("`config__order` int(11) collate utf8_unicode_ci NOT NULL,");
 	}
-	
-	
 	
 	/**
 	 * Lit un jeu de règle pour un item de configuration donné, sans tenir compte de l'héritage.
@@ -134,7 +118,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	
 		if(isset($input['rules'])) {
 			foreach($input['rules'] as $id=>$rule) {
-				if(preg_match('/'.self::NEW_ID_TAG.'(\d*)/', $id)) {
+				if(preg_match('@'.self::NEW_ID_TAG.'(\d*)@', $id)) {
 					$instance->check(-1, 'w', $rule);
 				} else {
 					$instance->check($id, 'w');
@@ -159,7 +143,7 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 	
 		if(isset($input['rules'])) {
 			foreach($input['rules'] as $id=>$rule) {
-				if(preg_match('/'.self::NEW_ID_TAG.'(\d*)/', $id)) {
+				if(preg_match('@'.self::NEW_ID_TAG.'(\d*)@', $id)) {
 					$instance->add($rule);
 				} else {
 					$rule[self::getIndexName()] = $id;
@@ -351,7 +335,6 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 			$output .= '<input type="hidden" name="rules['.$rule['id'].'][config__type_id]" value="'.$rule['config__type_id'].'">';
 			$output .= '<input type="hidden" name="rules['.$rule['id'].'][config__order]" value="'.$rule['config__order'].'">';
 			
-			// TODO ajouter des infobulles
 			$output .= '<table><tr style="vertical-align:middle">';
 			$output .= '<td><a class="pointer" onclick="'.$rootid.'.moveup(\''.$rule['id'].'\')"><img src="/pics/deplier_up.png" title=""></a></td>';
 			$output .= '<td><a class="pointer" onclick="'.$rootid.'.movedown(\''.$rule['id'].'\')"><img src="/pics/deplier_down.png" title=""></a></td>';
@@ -451,14 +434,6 @@ class PluginConfigmanagerRule extends PluginConfigmanagerCommon {
 		}
 	
 		return $result;
-	}
-	
-	protected static function getHeader() {
-		return '';
-	}
-	
-	protected static function getFooter() {
-		return '';
 	}
 	
 	protected static final function makeHeaderLine($text) {

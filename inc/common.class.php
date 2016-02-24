@@ -1,7 +1,11 @@
 <?php
 
 
-
+/**
+ * Cette classe contient le tronc commun pour les objets génériques de configuration et de règles.
+ * Pas d'intérêt pour elle-même
+ * @author Etiennef
+ */
 class PluginConfigmanagerCommon extends CommonDBTM {
 	const TYPE_GLOBAL = 'global';
 	const TYPE_USERENTITY = 'userentity';
@@ -263,7 +267,7 @@ class PluginConfigmanagerCommon extends CommonDBTM {
 	 */
 	protected static function getTabNameForConfigType($type) {
 		$matches = array();
-		if(preg_match('/Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+/', get_called_class(), $matches)) {
+		if(preg_match('@Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+@', get_called_class(), $matches)) {
 			return $matches[1];
 		} else return get_called_class();
 	}

@@ -167,6 +167,17 @@ if(! ($configManager->getFromDBbyDir("configmanager") && $configManager->fields[
 }
 ```
 
+## 5- Utiliser la configuration
+Il suffit d'utiliser la fonction statique `getConfigValues`, qui renvoie un tableau décrivant la configuration courante.
+Elle prend en paramètre un tableau décrivant les id des différents types de configuration à utiliser. Si celui-ci est omis, le plugin devine 'au mieux' ceux à utiliser :
+* self::TYPE_GLOBAL => 0
+* self::TYPE_USERENTITY => id de l'entité active
+* self::TYPE_ITEMENTITY => id de l'entité active
+* self::TYPE_PROFILE => id du profil actif
+* self::TYPE_USER => id de l'utilisateur loggé
+
+Autant certaines ne présentent pas vraiment d'intérêt à être surchargée, autant dans certains cas c'est indispensable : si par exemple j'ai une configuration qui indique ce que je peux faire sur un ticket selon l'entité dans lequel il se trouve, il faut passer en argument l'entité du ticket, qui peut être différente de l'entité active si on est dans une vue réccursive ou 'voir tous'.
+
 # Mode d'emploi de PluginConfigmanagerRule
 Dans les grandes lignes, c'est le même principe que PluginConfigmanagerConfig (PCC). Seulement, comme on traite de règles, il y a quelques petites différences :
 * plusieurs règles peuvent s'appliquer en même temps. Il n'y a donc plus de notion de surcharge, mais les règles se cumulent (dans un ordre donné). Libre au plugin qui les traite de décider ce qu'il en fait (on traite tout, on s'arrête à la première respectée...)
@@ -221,6 +232,9 @@ Enfin, on dispose aussi de la fonction `self::makeHeaderLine($text)`, qui a le m
 ## 3&4- Personnalisation de l'affichage et hooks
 Pas de différence avec PCC
 
+## 5- Utiliser la configuration
+La fonction s'appelle `getRulesValues`, mais sinon c'est exactement le même principe. La valeur renvoyée est un tableau de règles, chaque règle étant elle-même un tableau (un peu à la manière de CommonDBTM::find)
+
 # Mode d'emploi de PluginConfigmanagerTabmerger
 L'objectif de cet objet des de rassembler dans le même onglet ce qui aurait nativement été sur plusieurs onglets, un peu à la façon de l'onglet tous. L'intérêt principal est de rassembler toute la config de votre plugin sur un unique onglet, et ce même si vous avec un jeu de configuration et 3 jeux de règles.
 
@@ -258,5 +272,5 @@ Plugin::registerClass('PluginMonpluginTabmerger', array('addtabon' => array(
 
 #Idées pour des évolutions futures
 Rien de planifié à court terme:
-* Ajouter des modes de saisie au fil des besoins (text area, couleur...)
+* Ajouter des modes de saisie au fil des besoins (couleur...)
 * Réfléchir à un moyen de gérer les changements de modèle de façon intelligente (par exemple en ajoutant/supprimant des colonnes dans tout casser)

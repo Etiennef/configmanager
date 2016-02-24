@@ -24,10 +24,6 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 		return false;
 	}
 
-	
-	
-	
-	
 	/**
 	 * Lit la configuration pour un item de configuration donné, sans tenir compte de l'héritage.
 	 * Fonctionne avec un jeu de singletons pour éviter les appels à la base inutiles.
@@ -153,7 +149,12 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 		return $input;
 	}
 	
-
+	/**
+	 * Affichage de l'onglet servant à régler un item de configuration 
+	 * @param string $type typede configuration à afficher
+	 * @param integer $type_id id de l'item de configuration
+	 * @return boolean
+	 */
 	protected static final function showFormStatic($type, $type_id) {
 		if(! self::canItemStatic($type, $type_id, 'r')) {
 			return false;
@@ -363,6 +364,11 @@ class PluginConfigmanagerConfig extends PluginConfigmanagerCommon {
 			</script>";
 	}
 	
+	/**
+	 * Renvoie le code html à insérer dans l'objet de configuration pour mettre un titre
+	 * @param string $text texte à afficher
+	 * @return string
+	 */
 	protected final static function makeHeaderLine($text) {
 		return '<th colspan="2" class="headerRow">'.$text.'</th>';
 	}

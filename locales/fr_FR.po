@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ConfigManager\n"
-"POT-Creation-Date: 2016-02-21 19:03+0100\n"
-"PO-Revision-Date: 2016-02-21 19:04+0100\n"
+"POT-Creation-Date: 2016-02-24 19:28+0100\n"
+"PO-Revision-Date: 2016-02-24 19:28+0100\n"
 "Last-Translator: Etienne <etienne-github@outlook.fr>\n"
 "Language-Team: Etiennef <Etienne-github@outlook.fr>\n"
 "Language: fr_FR\n"
@@ -16,68 +16,43 @@ msgstr ""
 "X-Poedit-KeywordsList: __:1,2t\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: inc/common.class.php:292
-#, php-format
-msgid "Global configuration for plugin %s"
-msgstr "Configuration globale pour le plugin %s"
-
-#: inc/common.class.php:294
-#, php-format
-msgid "User entity configuration for plugin %s"
-msgstr "Configuration sur l'entité de l'utilisateur pour le plugin %s"
-
-#: inc/common.class.php:296
-#, php-format
-msgid "Item entity configuration for plugin %s"
-msgstr "Configuration sur l'entité d'un objet manipulé pour le plugin %s"
-
-#: inc/common.class.php:298
-#, php-format
-msgid "Profile configuration for plugin %s"
-msgstr "Configuration par profil pour le plugin %s"
-
-#: inc/common.class.php:300
-#, php-format
-msgid "User preference for plugin %s"
-msgstr "Préférences personnelles pour le plugin %s"
-
-#: inc/common.class.php:314
+#: inc/common.class.php:280
 msgid "Inherit from global configuration"
 msgstr "Hériter de la configuration générale"
 
-#: inc/common.class.php:315
+#: inc/common.class.php:281
 msgid "Inherit from user entity configuration"
 msgstr "Hériter de la configuration de l'entité de l'utilisateur"
 
-#: inc/common.class.php:316
+#: inc/common.class.php:282
 msgid "Inherit from item entity configuration"
 msgstr "Hériter de la configuration de l'entité de l'objet"
 
-#: inc/common.class.php:317
+#: inc/common.class.php:283
 msgid "Inherit from profile configuration"
 msgstr "Hériter de la configuration du profil"
 
-#: inc/common.class.php:318
+#: inc/common.class.php:284
 msgid "Inherit from user preference"
 msgstr "Hériter des préférences personnelles"
 
-#: inc/common.class.php:332
+#: inc/common.class.php:298
 msgid "Inherited from global configuration"
 msgstr "Hérité de la configuration générale"
 
-#: inc/common.class.php:333
+#: inc/common.class.php:299
 msgid "Inherited from user entity configuration"
 msgstr "Hérité de la configuration de l'entité de l'utilisateur"
 
-#: inc/common.class.php:334
+#: inc/common.class.php:300
 msgid "Inherited from item entity configuration"
 msgstr "Hérité de la configuration de l'entité de l'objet"
 
-#: inc/common.class.php:335
+#: inc/common.class.php:301
 msgid "Inherited from profile configuration"
 msgstr "Hérité de la configuration du profil"
 
-#: inc/common.class.php:336
+#: inc/common.class.php:302
 msgid "Inheriteds from user preference"
 msgstr "Hérité des préférences personnelles"
 
@@ -94,7 +69,7 @@ msgstr ""
 msgid "Only the inherit option will be taken into account"
 msgstr "Seule l'option \"hériter\" sera prise en compte"
 
-#: inc/rule.class.php:251
+#: inc/rule.class.php:256
 msgid "Actions"
 msgstr "Actions"
 

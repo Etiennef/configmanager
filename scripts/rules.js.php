@@ -16,6 +16,9 @@ Ext.onReady(function() {
 	
 	initialize();
 
+	/**
+	 * Initialisation du script : les règles sont 'scannée' pour pouvoir être manipulées facilement par la suite
+	 */
 	function initialize() {
 		rows = tableNode.children;
 		for (var i in rows) {
@@ -37,7 +40,9 @@ Ext.onReady(function() {
 		}
 	}
 
-	
+	/**
+	 * Déplace une règle vers le haut
+	 */
 	function moveup(id) {
 		var current = rules[id];
 		var prev = null;
@@ -75,6 +80,9 @@ Ext.onReady(function() {
 		}
 	}
 
+	/**
+	 * Déplace une règle vers le bas
+	 */
 	function movedown(id) {
 		var current = rules[id];
 		var next = null;
@@ -112,44 +120,11 @@ Ext.onReady(function() {
 		}
 	}
 
-	function movedown(id) {
-		var current = rules[id];
-		var next = null;
-		
-		//On recherche la règle suivante
-		Object.keys(rules).forEach(function(rule_id) {
-			rule = rules[rule_id];
-			if(rule.id === id) return;
-			if(rules[rule_id].order > current.order && (next === null || rules[rule_id].order < next.order)) {
-				next = rule;
-			}
-		});
-
-
-		if(next===null && current.order > 0) {
-			// cas où il n'y a pas de précédent et qu'on est déjà avant les règles héritées
-			return;
-		} else if((next===null || next.order>0) && current.order<0) {
-			// cas où on doit croiser les règles héritées
-			Object.keys(rules).forEach(function(rule_id) {
-				setOrder(rules[rule_id], rules[rule_id].order+1);
-			});
-			setOrder(current, 1);
-			if(next) {
-				tableNode.insertBefore(current.dom, next.dom);
-			} else {
-				tableNode.appendChild(current.dom);
-			}
-		} else {
-			// cas où on ne croise qu'un règle
-			var tmp = current.order
-			setOrder(current, next.order);
-			setOrder(next, tmp);
-			tableNode.insertBefore(next.dom, current.dom);
-		}
-	}
-
+	
 	addcnt = 1;
+	/**
+	 * Ajoute une règle juste après celle dont l'id est donné en argument
+	 */
 	function add(id) {
 		var current = rules[id];
 
@@ -189,7 +164,10 @@ Ext.onReady(function() {
 
 	}
 
-	function addlast(id) {
+	/**
+	 * Ajoute une règle en dernière position
+	 */
+	function addlast() {
 		var newID = '<?php echo self::NEW_ID_TAG;?>'+addcnt++;
 		var newOrder = null;
 		
@@ -219,6 +197,9 @@ Ext.onReady(function() {
 		tableNode.appendChild(newRule.dom);
 	}
 
+	/**
+	 * Retire la règle dont l'id est donné en argument
+	 */
 	function remove(id) {
 		var current = rules[id];
 		
@@ -242,7 +223,7 @@ Ext.onReady(function() {
 
 		delete rules[id];
 	}
-	
+
 	function setOrder(rule, order) {
 		rule.order = order;
 		tableNode.querySelector('[name$="rules['+rule.id+'][config__order]"]').value = order;
