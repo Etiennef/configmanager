@@ -7,7 +7,7 @@
 function plugin_version_configmanager()
 {
 	return array('name'           => "ConfigManager",
-			'version'        => '0.1.0',
+			'version'        => '1.0.0',
 			'author'         => 'Etiennef',
 			'license'        => 'GPLv2+',
 			'homepage'       => 'https://github.com/Etiennef/configmanager',
