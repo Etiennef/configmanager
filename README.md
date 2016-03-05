@@ -30,8 +30,7 @@ array(
 		),
 		'default' => '0',
 //		'multiple' => false,
-//	 	'size' => 5,
-//	 	'mark_unmark_all' => false
+//		'width' => '50%'
 	),
 	'param2' => array(
 		'type' => 'text input',
@@ -92,8 +91,7 @@ A noter : les champ `maxlength` et `default` peuvent être ignorés, et l'ordre 
 Permet d'afficher un dropdown. En plus des paramètres communs, il prend les paramètres suviants (defaut:xxx signifie que le paramètre est optionnel, et que sa valeur par défaut est xxx)
 * `values` représente les valeurs possibles du dropdown sous forme d'un tableau ('value'=>'texte à afficher comme option du dropdown')
 * `multiple` (defaut:false) => indique s'il doit être possible de sélectionner plusieurs valeurs à la fois (attention à la longueur prévue en base de donnée)
-* `size` (defaut:1) => hauteur de dropdown de saisie
-* `mark_unmark_all` (defaut:false) => permet d'afficher les options tout sélectionner/tout désélectionner (valable seulement si multiple est vrai)
+* `width` représent la taille de champs qui apparaitra. Pas important si un seul choix est possible, mais utile à régler si multiple==1, car sinon, => le champs vide sera riquiqui. '100px', '75%'...
 
 A noter : si `multiple===true`, les données seront stockées en base sous la forme d'un tableau sous format json, il faut donc prévoir comme taille de la colonne (`maxlength`) au minimum la taille cumulée de toutes les valeurs, plus les guillemets, virgules et crochets associés. De plus, dans ce cas `default` doit être un tableau en format json valide pour votre plugin (par exemple `'default'=>'["toto","tutu"]'`...
 
@@ -176,6 +174,7 @@ Elle prend en paramètre un tableau décrivant les id des différents types de c
 
 Autant certaines ne présentent pas vraiment d'intérêt à être surchargée, autant dans certains cas c'est indispensable : si par exemple j'ai une configuration qui indique ce que je peux faire sur un ticket selon l'entité dans lequel il se trouve, il faut passer en argument l'entité du ticket, qui peut être différente de l'entité active si on est dans une vue réccursive ou 'voir tous'.
 
+Il est possible de surcharger `getConfigValues` pour personnaliser son comportement. Dans ce cas, il est fortement conseillé de commencer par appeller la fonction du parent avant d'ajouter les traitments personnalisés.
 # Mode d'emploi de PluginConfigmanagerRule
 Dans les grandes lignes, c'est le même principe que PluginConfigmanagerConfig (PCC). Seulement, comme on traite de règles, il y a quelques petites différences :
 * plusieurs règles peuvent s'appliquer en même temps. Il n'y a donc plus de notion de surcharge, mais les règles se cumulent (dans un ordre donné). Libre au plugin qui les traite de décider ce qu'il en fait (on traite tout, on s'arrête à la première respectée...)
@@ -208,8 +207,6 @@ array(
 		),
 		'default' => '0',
 //		'multiple' => false,
-//	 	'size' => 5,
-//	 	'mark_unmark_all' => false
 	),
 	...);
 ```
@@ -218,6 +215,7 @@ Explication de texte (seulement ce qui diffère de PCC) :
 * `default` est toujours la valeur par défaut du paramètre. Par contre, comme l'héritage se fait sur le cumul de règles, et non sur une valeur donnée, elle est utilisée un peu différement : à chaque fois que dans l'interface, vous créez une nouvelle règle, pour chacun de ses paramètres, elle prend la valeur par défaut.
 * `tooltip` ne sera plus affiché sur une ligne de configuration, mais sur la colonne correspondant au critère de la règle.
 * `type==='readonly text'` Au lieu d'afficher le texte dans une ligne dédiée, il sera affiché dans la ligne de titre indiquant le nom des colonnes, et dans chaque règle. Dans les deux cas, on pourra utiliser du HTML, mais le code sera inséré dans une cellule (`<td>readonly text</td>`), ce qui en limite l'intérêt.
+* `width` a pour valeur par défaut 100%
 
 Il existe trois valeurs spécifiques de clés ayant une fonction particulière :
 * `_header` => code HTML qui sera inséré avant la ligne contenant les `test`. Exemple : '<tr><th class="headerRow" colspan="'.(count(self::getConfigParams())+1).'">Ceci est un titre</th></tr>' insère un titre pour le tableau qui contient les règles.

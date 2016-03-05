@@ -181,9 +181,6 @@ class PluginConfigmanagerCommon extends CommonDBTM {
       return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], UPDATE);
    }
 
-   final function canDeleteItem() {
-      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], UPDATE);
-   }
 
    /**
     * Gère la transformation des inputs multiples en quelque chose d'inserable dans la base (en l'occurence une chaine json).
