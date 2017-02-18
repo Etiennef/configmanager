@@ -146,7 +146,7 @@ Plugin::registerClass('PluginMonpluginConfig', array('addtabon' => array(
     )));
 if((new Plugin())->isActivated('monplugin')) {
     $PLUGIN_HOOKS['config_page']['monplugin'] = "../../front/config.form.php?forcetab=" . urlencode('PluginMonpluginConfig$1');
-}    
+} 
 ```
 Note : cette façon de brancher la configuration n'est pas obligatoire. Vous remarquerez que l'onglet de la configuration générale et numéroté 1. En fait, chaque type d'onglet a un numéro fixe, afin de pouvoir être référencé de façon sûre dans un forcetab si nécessaire :
 * self::TYPE_GLOBAL => 1
@@ -260,7 +260,7 @@ Ensuite, on remplace les hooks des onglets rassemblés par celui de l'onglet fus
 ```
 Plugin::registerClass('PluginMonpluginConfig');
 Plugin::registerClass('PluginMonpluginRule');
-    
+ 
 Plugin::registerClass('PluginMonpluginTabmerger', array('addtabon' => array(
     'User',
     'Preference',

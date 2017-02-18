@@ -5,7 +5,7 @@
  * @return boolean
  */
 function plugin_configmanager_install() {
-    return true;
+   return true;
 }
 
 /**
@@ -13,24 +13,5 @@ function plugin_configmanager_install() {
  * @return boolean
  */
 function plugin_configmanager_uninstall() {
-    return true;
+   return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
