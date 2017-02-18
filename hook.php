@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Fonction d'installation du plugin
+ * Function installing plugin (does nothing becaus meta-plugin!)
  * @return boolean
  */
 function plugin_configmanager_install() {
@@ -9,8 +9,7 @@ function plugin_configmanager_install() {
 }
 
 /**
- * Fonction de désinstallation du plugin
- *
+ * Function uninstalling plugin (does nothing becaus meta-plugin!)
  * @return boolean
  */
 function plugin_configmanager_uninstall() {
