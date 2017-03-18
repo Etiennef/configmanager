@@ -1,9 +1,7 @@
 <?php
-
 /**
- * Cette classe contient le tronc commun pour les objets génériques de configuration et de règles.
- * Pas d'intérêt pour elle-même
- * @author Etiennef
+ * This class contains functions that are common beween config and rules.
+ * No direct use
  */
 class PluginConfigmanagerCommon extends CommonDBTM {
    const TYPE_GLOBAL = 'global';
@@ -13,80 +11,84 @@ class PluginConfigmanagerCommon extends CommonDBTM {
    const TYPE_USER = 'user';
 
    /**
-    * Renvoie un tableau de tous les types de config possibles
-    *
-    * @return multitype:string
+    * Return an array of all possible types
+    * @return string[]
     */
    protected final static function getAllConfigTypes() {
-      // CHANGE WHEN ADD CONFIG_TYPE
+      //CHANGE WHEN ADD CONFIG_TYPE
       return array(
             self::TYPE_GLOBAL,
             self::TYPE_USERENTITY,
             self::TYPE_ITEMENTITY,
             self::TYPE_PROFILE,
-            self::TYPE_USER
+            self::TYPE_USER,
       );
    }
 
    /**
-    * Renvoie le tableau représentant la description de la configuration (la méta-configuration, quelque part)
+    * Return array representing the config description (meta-configuration, sort of)
+    * Works as a singleton, meta-config is build once for each subclass (at most)
+    * @return array
     */
    protected final static function getConfigParams() {
-      static $configparams_instance = array(); // tableau nécessaire car sinon le singleton est partagé entre toutes les classes qui héritent
-      if (! isset($configparams_instance[get_called_class()])) {
+      static $configparams_instance = array();
+      // This array is mandatory because this static var is share between every class inheriting from this one
+      // It stores the config for each subclass
+      if(! isset($configparams_instance[get_called_class()])) {
          $configparams_instance[get_called_class()] = static::makeConfigParams();
       }
       return $configparams_instance[get_called_class()];
    }
 
+   /**
+    * Builds the metaconfiguration.
+    * This function should be overridden.
+    * Bear in mind that the plugin will call it once and cache the result
+    * @return array
+    */
    static function makeConfigParams() {
       return array();
    }
 
    /**
-    * Création des tables liées à cet objet.
-    * Utilisée lors de l'installation du plugin
-    *
-    * @param $additionnal_param string
-    *           colonne à ajouter dans la table
+    * Create DB table required for the configuration storage.
+    * Has to be used when the plugin is installed
+    * @param $additionnal_param string table colomn to add
     */
-   public static function install($additionnal_param = '') {
+   public static function install($additionnal_param='') {
       global $DB;
       $table = self::getTable();
       $request = '';
 
       $query = "CREATE TABLE `$table` (
-		`" . self::getIndexName() . "` int(11) NOT NULL AUTO_INCREMENT,
-					`config__type` varchar(50) collate utf8_unicode_ci NOT NULL,
-					`config__type_id` int(11) collate utf8_unicode_ci NOT NULL, ";
+      `" . self::getIndexName() . "` int(11) NOT NULL AUTO_INCREMENT,
+               `config__type` varchar(50) collate utf8_unicode_ci NOT NULL,
+               `config__type_id` int(11) collate utf8_unicode_ci NOT NULL, ";
 
       $query .= $additionnal_param;
 
-      foreach ( self::getConfigParams() as $param => $desc ) {
-         if ($desc['type'] === 'readonly text')
-            continue;
+      foreach(self::getConfigParams() as $param => $desc) {
+         if($desc['type'] === 'readonly text') continue;
          $query .= "`$param` varchar(" . $desc['maxlength'] . ") collate utf8_unicode_ci,";
       }
 
       $query .= "PRIMARY KEY  (`" . self::getIndexName() . "`)
-				) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+            ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
-      if (! TableExists($table)) {
+      if(! TableExists($table)) {
          $DB->queryOrDie($query, $DB->error());
       }
    }
 
    /**
-    * Suppression des tables liées à cet objet.
-    * Utilisé lors de la désinstallation du plugin
-    *
-    * @return boolean
+    * Drop DB table related to this configuration/rules.
+    * Has to be used when the plugin is uninstalled
     */
    public final static function uninstall() {
       global $DB;
       $table = self::getTable();
 
-      if (TableExists($table)) {
+      if(TableExists($table)) {
          $query = "DROP TABLE `$table`";
          $DB->queryOrDie($query, $DB->error());
       }
@@ -94,69 +96,61 @@ class PluginConfigmanagerCommon extends CommonDBTM {
    }
 
    /**
-    * Renvoie les types de configurations correspondant à un type d'objet de GLPI
-    *
-    * @param string $glpiobjecttype
-    *           le type de l'objet GLPI (classiquement obtenu via CommonGLPI::getType())
-    * @return array:string tableau des types de configurations possibles
+    * Returns configuration types corresponding to a GLPI type
+    * Note to self : numeric keys are important, because they are needed in displayTabContentForItem, to determine which config corresponds to a tab
+    * @param string $glpiobjecttype GLPI object type (used by CommonGLPI::getType())
+    * @return string[] array of corresponding configuration types
     */
    protected final static function getTypeForGLPIObject($glpiobjecttype) {
-      // CHANGE WHEN ADD GLPI_TYPE
-      switch ($glpiobjecttype) {
+      //CHANGE WHEN ADD GLPI_TYPE
+      switch($glpiobjecttype) {
          case 'Config' :
-            return array(
-                  1 => self::TYPE_GLOBAL
-            );
+            return array(1=>self::TYPE_GLOBAL);
          case 'Entity' :
             return array(
-                  2 => self::TYPE_USERENTITY,
-                  3 => self::TYPE_ITEMENTITY
+               2=>self::TYPE_USERENTITY,
+               3=>self::TYPE_ITEMENTITY,
             );
          case 'Profile' :
-            return array(
-                  4 => self::TYPE_PROFILE
-            );
+            return array(4=>self::TYPE_PROFILE);
          case 'User' :
-            return array(
-                  5 => self::TYPE_USER
-            );
+            return array(5=>self::TYPE_USER);
          case 'Preference' :
-            return array(
-                  5 => self::TYPE_USER
-            );
+            return array(5=>self::TYPE_USER);
          default :
             return '';
       }
    }
 
-   static final function canView() {
-      return true;
-   }
-
-   static final function canCreate() {
-      return true;
-   }
-
-   static final function canUpdate() {
+    /**
+    * @inheritdoc
+    */
+    static final function canView() {
       return true;
    }
 
    /**
-    * Fonction générique pour tester les droits sur cette entrée de config.
-    * C'est juste une version générlque pour canViewItem et canCreateItem
-    *
-    * @param string $right
-    *           READ ou UPDATE selon qu'on s'intéresse aux droits en lecture ou en écriture
+    * @inheritdoc
+    */
+   static final function canCreate() {
+      return true;
+   }
+
+   /**
+    * Generic function testing right on a single configuration line or rule.
+    * It's only a generic version of canViewItem and canCreateItem
+    * @param string $type Configuration type
+    * @param integer $type_id id GLPI object related to this configuration line/rule
+    * @param string $right 'r' or 'w' for read or write right
     * @return boolean l'utilisateur courant a-t-il le droit demandé
     */
    protected static final function canItemStatic($type, $type_id, $right) {
-      // CHANGE WHEN ADD CONFIG_TYPE
-      if (! static::hasFieldsForType($type))
-         return false;
+      //CHANGE WHEN ADD CONFIG_TYPE
+      if(! static::hasFieldsForType($type)) return false;
 
-      switch ($type) {
+      switch($type) {
          case self::TYPE_GLOBAL :
-            return $type_id == 0 && Session::haveRight('config', $right);
+            return $type_id==0 && Session::haveRight('config', $right);
          case self::TYPE_USERENTITY :
          case self::TYPE_ITEMENTITY :
             return (new Entity())->can($type_id, $right);
@@ -169,48 +163,56 @@ class PluginConfigmanagerCommon extends CommonDBTM {
       }
    }
 
+   /**
+    * @inheritdoc
+    */
    final function canViewItem() {
-      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], READ);
+      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], 'r');
    }
-
-   final function canCreateItem() {
-      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], UPDATE);
-   }
-
-   final function canUpdateItem() {
-      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], UPDATE);
-   }
-
 
    /**
-    * Gère la transformation des inputs multiples en quelque chose d'inserable dans la base (en l'occurence une chaine json).
-    * .
-    *
+    * @inheritdoc
+    */
+   final function canCreateItem() {
+      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], 'w');
+   }
+
+    /**
+    * @inheritdoc
+    */
+    final function canUpdateItem() {
+      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], 'r');
+   }
+
+   /**
+    * Forbids change of some params on config update.
+    * This has to be done to avoid a malicious user to transform a config he is allowed to write into a config he shouldn't (canUpdate is checked before the actual update)
     * @see CommonDBTM::prepareInputForUpdate()
     */
-   final function prepareInputForUpdate($input) {
+   function prepareInputForUpdate($input) {
       // ce sont des champs qu'il est interdit de modifier
       unset($input['config__type']);
       unset($input['config__type_id']);
 
-      return $this->prepareInputForAdd($input);
+      return $input;
    }
 
    /**
-    * Détermine le type_id de la configuration courante pour un type de configuration donné, en tenant compte d'abord du tableau de paramètres, et s'il est absent du tableau en devinant la bonne valeur à partir des informations de session.
-    *
-    * @param string $type
-    *           type de configuration
-    * @param array:string $values
-    *           tableau indiquant la valeur des paramètres souhaité (les clés sont les $type possibles)
-    * @return type_id à recherche en BDD
+    * Returns the id of the pertinent GLPI object id related to a given type.
+    * - from an array
+    * - or guessed from context (current entity, profile...)
+    * Most of the time, context is ok, but array can be used to force the choice, or to provide a result when context is unsure.
+    * @param string $type Configuration type
+    * @param string[] $values Array with prefered values (keys are configuration types for which user has a preference)
+    * @return pertinent GLPI object id to use
     */
-   protected final static function getTypeIdForCurrentConfig($type, $values = array()) {
-      if (isset($values[$type]))
+   protected final static function getTypeIdForCurrentConfig($type, $values=array()) {
+      if(isset($values[$type])) {
          return $values[$type];
+      }
 
-         // CHANGE WHEN ADD CONFIG_TYPE
-      switch ($type) {
+      //CHANGE WHEN ADD CONFIG_TYPE
+      switch($type) {
          case self::TYPE_GLOBAL :
             return 0;
          case self::TYPE_USERENTITY :
@@ -227,10 +229,8 @@ class PluginConfigmanagerCommon extends CommonDBTM {
    }
 
    /**
-    * Regarde dans la description s'il existe des éléments de configuration pour ce type
-    *
-    * @param string $type
-    *           type de configuration
+    * Check the meta-configuration if a config exists for this configuration type
+    * @param string $type configuration type
     * @return boolean
     */
    protected static function hasFieldsForType($type) {
@@ -238,20 +238,17 @@ class PluginConfigmanagerCommon extends CommonDBTM {
    }
 
    /**
-    * Définit les onglets à afficher pour les objets auxquels peuvent se ratacher des configurations.
-    * En particulier, teste les différents types de configs pour savoir s'il y a lieu d'afficher un onglet pour l'objet GLPI.
-    * .
-    *
+    * Define tabs to display in a CommonGLPI object.
     * @see CommonGLPI::getTabNameForItem()
     */
    final function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
-      if (($types = self::getTypeForGLPIObject($item->getType())) === '') {
+      if(($types = self::getTypeForGLPIObject($item->getType())) === '') {
          return '';
       }
 
       $res = array();
-      foreach ( $types as $tab => $type ) {
-         if (static::hasFieldsForType($type)) {
+      foreach ($types as $tab => $type) {
+         if(static::hasFieldsForType($type)) {
             $res[$tab] = static::getTabNameForConfigType($type);
          }
       }
@@ -260,15 +257,12 @@ class PluginConfigmanagerCommon extends CommonDBTM {
    }
 
    /**
-    * Fonction d'affichage du contenu de l'onglet de configuration, pour un objet GLPI, et un n° d'onglet (la combinaison des eux permet de déterminer de quel type de config il s'agit, si l'objet GLPI a deux types de config)
+    * Display config or rule tab content, for a given GLPI object, and tab n°
     *
-    * @param CommonGLPI $item
-    *           Objet GLPI auquel sont ratachés des objets de config
-    * @param number $tabnum
-    *           n° de l'onglet (permet de savoir à quel type de config correspnd l'onglet demandé)
-    * @param number $withtemplate
-    *           inutilisé dans notre contexte
-    * @return boolean true, sauf si une erreur est contatée (ne devrait pas se produire en principe)
+    * @param CommonGLPI $item GLPI object to which the config to display is associated
+    * @param number $tabnum tab number (allows to find which config tab we display in case there are several config type for the GLPI type)
+    * @param number $withtemplate comes from GLPI, unused for us
+    * @return boolean true, except in case of error (not really likely here)
     */
    final static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
       $type = self::getTypeForGLPIObject($item->getType())[$tabnum];
@@ -277,68 +271,57 @@ class PluginConfigmanagerCommon extends CommonDBTM {
    }
 
    /**
-    * Fonction d'affichage du contenu de l'onglet de configuration pour un item de configuration
+    * Display config or rule tab content, for a given config type and id
     *
-    * @param string $type
-    *           type de configuration
-    * @param integer $type_id
-    *           type_id de l'item à afficher
-    * @return boolean true, sauf si une erreur est contatée (ne devrait pas se produire en principe)
+    * @param string $type configuration type
+    * @param integer $type_id configuration type id
+    * @return boolean true, except in case of error (not really likely here)
     */
    protected static function showFormStatic($type, $type_id) {
       echo 'This function should have been overridden';
    }
 
    /**
-    * Détermine le type_id de la (des) configuration(s) rattachée à un objet GLPI
-    *
-    * @param CommonGLPI $item
-    *           l'objet auquel est rattaché la configuration
-    * @return number type_id de la (des) configuration(s) associée
+    * Determine configuration type_id cannonicly attached to a given GLPI object
+    * @param CommonGLPI $item GLPI object the config is attached to
+    * @return number type_id of the config
     */
    private final static function getTypeIdForGLPIItem(CommonGLPI $item) {
-      // CHANGE WHEN ADD GLPI_TYPE
-      switch ($item->getType()) {
-         case 'Config' :
-            return 0;
+      //CHANGE WHEN ADD GLPI_TYPE
+      switch($item->getType()) {
+         case 'Config' : return 0;
          case 'Entity' :
          case 'Profile' :
-         case 'User' :
-            return $item->getId();
-         case 'Preference' :
-            return Session::getLoginUserID();
-         default :
-            return false;
+         case 'User' : return $item->getId();
+         case 'Preference' : return Session::getLoginUserID();
+         default : return false;
       }
    }
 
    /**
-    * Détermine le nom de l'onglet pour un type de configuration donné.
-    * Par défaut, c'est le nom du plugin, mais peut être surchargé pour régler les noms au cas par cas.
-    *
-    * @param string $type
-    *           type de configuration
-    * @return String: nom de l'onglet à afficher
+    * Determine the title of the config tab.
+    * Defaults to the plugion name, but can be overridden by the user.
+    * @param string $type configuration type
+    * @return String title of the tab
     */
    protected static function getTabNameForConfigType($type) {
       $matches = array();
-      if (preg_match('@Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+@', get_called_class(), $matches)) {
+      if(preg_match('@Plugin([[:upper:]][[:lower:]]+)[[:upper:]][[:lower:]]+@', get_called_class(), $matches)) {
          return $matches[1];
-      } else
+      } else {
          return get_called_class();
+      }
    }
 
    /**
-    * Renvoie le message à afficher dans les choix pour l'option 'hériter'.
-    * Peut être surchargée pour personnaliser l'affichage.
-    *
-    * @param string $type
-    *           le type de configuration dont on hérite
-    * @return string le texte à afficher dans les options du paramètre.
+    * Get the message to display too chose the 'inherit' option (in dropdown for example)
+    * Can be overridden.
+    * @param string $type configuration type from which it would be inherited
+    * @return string
     */
    protected static function getInheritFromMessage($type) {
-      // CHANGE WHEN ADD CONFIG_TYPE
-      switch ($type) {
+      //CHANGE WHEN ADD CONFIG_TYPE
+      switch($type) {
          case self::TYPE_GLOBAL :
             return __('Inherit from global configuration', 'configmanager');
          case self::TYPE_USERENTITY :
@@ -349,22 +332,19 @@ class PluginConfigmanagerCommon extends CommonDBTM {
             return __('Inherit from profile configuration', 'configmanager');
          case self::TYPE_USER :
             return __('Inherit from user preference', 'configmanager');
-         default :
-            return false;
+         default : return false;
       }
    }
 
    /**
-    * Renvoie le message à afficher pour indiquer qu'une règle/config est héritée.
-    * Peut être surchargée pour personnaliser l'affichage.
-    *
-    * @param string $type
-    *           le type de configuration dont on hérite
-    * @return string le texte à afficher
+    * Get the message to display too indicate a configuration/rule is inherited
+    * Can be overridden.
+    * @param string $type configuration type the config is inherited from
+    * @return string
     */
    protected static function getInheritedFromMessage($type) {
-      // CHANGE WHEN ADD CONFIG_TYPE
-      switch ($type) {
+      //CHANGE WHEN ADD CONFIG_TYPE
+      switch($type) {
          case self::TYPE_GLOBAL :
             return __('Inherited from global configuration', 'configmanager');
          case self::TYPE_USERENTITY :
@@ -375,8 +355,7 @@ class PluginConfigmanagerCommon extends CommonDBTM {
             return __('Inherited from profile configuration', 'configmanager');
          case self::TYPE_USER :
             return __('Inheriteds from user preference', 'configmanager');
-         default :
-            return false;
+         default : return false;
       }
    }
 }

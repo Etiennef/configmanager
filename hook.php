@@ -10,28 +10,8 @@ function plugin_configmanager_install() {
 
 /**
  * Fonction de désinstallation du plugin
- *
  * @return boolean
  */
 function plugin_configmanager_uninstall() {
    return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
