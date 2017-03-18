@@ -181,7 +181,7 @@ class PluginConfigmanagerCommon extends CommonDBTM {
     * @inheritdoc
     */
     final function canUpdateItem() {
-      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], UPDATE);
+      return self::canItemStatic($this->fields['config__type'], $this->fields['config__type_id'], 'r');
    }
 
    /**
